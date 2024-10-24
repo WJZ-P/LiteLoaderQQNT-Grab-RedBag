@@ -1,0 +1,18 @@
+{
+    "manifest_version": 4,
+    "type": "extension",
+    "name": "Grab Redpack",
+    "slug": "grab_red_pack",
+    "description": "一个用于LiteLoaderQQNT的extension",
+    "version": "0.1.0",
+    "authors": [{
+        "name": "WJZ_P",
+        "link": "https://github.com/WJZ_P"
+    }],
+    "platform": ["win32", "linux", "darwin"],
+    "injects": {
+        "renderer": "./src/renderer.js",
+        "main": "./src/main.js",
+        "preload": "./src/preload.js"
+    }
+}
