@@ -38,12 +38,26 @@ function onHashUpdate() {
         grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => {
             // pluginLog("下面是onRecvActiveMsg的payload")
             //console.log(payload)
+            let wallEl = null
             for (const msgElement of payload.msgList[0].elements) {
                 if (msgElement.elementType === 9) {//说明是红包消息！
                     pluginLog("收到了红包消息！！！")
+                    wallEl = msgElement.walletElement
                     console.log(msgElement.walletElement)//打印红包内容
+                    console.log(payload)
+                    break
                 }
             }
+            if (!wallEl) return;
+
+            //收红包必要的数据
+            const msgSeq = payload.msgList[0].msgSeq
+            const recvUin = payload.msgList[0].senderUin//自己的QQ号
+            const peerUid = payload.msgList[0].peerUid//发红包的对象的peerUid
+            const name = payload.msgList[0].sendMemberName//应该是自己的名字
+            const pcBody = wallEl.pcBody
+            const wishing =wallEl.receiver.title
+            const index=wallEl.stringIndex
         })
 
         // grAPI.subscribeEvent("nodeIKernelMsgListener/onAddSendMsg", (payload) => {
