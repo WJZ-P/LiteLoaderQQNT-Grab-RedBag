@@ -29,13 +29,10 @@ function onHashUpdate() {
     pluginLog('[EC渲染进程]执行onHashUpdate')
 
     try {
-        grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvMsg", (payload) => {
-            // pluginLog("下面是onRecvMsg的payload")
-            // console.log(payload)
-        })
+
 
         //这个似乎是最常见的，QQ收到消息就是这个。
-        grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => {
+        grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", async (payload) => {
             // pluginLog("下面是onRecvActiveMsg的payload")
             //console.log(payload)
             let wallEl = null
@@ -50,14 +47,32 @@ function onHashUpdate() {
             }
             if (!wallEl) return;
 
+            const authData = app.__vue_app__.config.globalProperties.$store.state.common_Auth.authData
+
             //收红包必要的数据
             const msgSeq = payload.msgList[0].msgSeq
-            const recvUin = payload.msgList[0].senderUin//自己的QQ号
+            const recvUin = authData.uin//自己的QQ号
             const peerUid = payload.msgList[0].peerUid//发红包的对象的peerUid
-            const name = payload.msgList[0].sendMemberName//应该是自己的名字
+            const name = authData.nickName//应该是自己的名字
             const pcBody = wallEl.pcBody
-            const wishing =wallEl.receiver.title
-            const index=wallEl.stringIndex
+            const wishing = wallEl.receiver.title
+            const index = wallEl.stringIndex
+            const chatType = payload.msgList[0].chatType//聊天类型，1是私聊，2是群聊
+            //下面准备发送收红包消息
+            pluginLog("准备抢红包")
+            const result = await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
+                "grabRedBagReq": {
+                    "recvUin": chatType === 1 ? recvUin : peerUid,//私聊的话是自己Q号，群聊就是peerUid
+                    "recvType": chatType,
+                    "peerUid": peerUid,//对方的uid
+                    "name": name,
+                    "pcBody": pcBody,
+                    "wishing": wishing,
+                    "msgSeq": msgSeq,
+                    "index": index
+                }
+            }, {"timeout": 5000})
+            pluginLog("抢红包结果为" + JSON.stringify(result))
         })
 
         // grAPI.subscribeEvent("nodeIKernelMsgListener/onAddSendMsg", (payload) => {
