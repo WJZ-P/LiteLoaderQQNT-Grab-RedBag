@@ -1,8 +1,8 @@
 {
     "manifest_version": 4,
     "type": "extension",
-    "name": "Grab Redpack",
-    "slug": "grab_red_pack",
+    "name": "自动抢红包",
+    "slug": "grab_redbag",
     "description": "一个用于LiteLoaderQQNT的extension",
     "version": "0.1.0",
     "authors": [{

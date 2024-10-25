@@ -7,7 +7,7 @@ if (!webContentsId) {
 }
 
 // 在window对象下导出只读对象
-contextBridge.exposeInMainWorld("grab_red_pack", {
+contextBridge.exposeInMainWorld("grab_redbag", {
     invokeNative: (eventName, cmdName, registered, ...args) => invokeNative(eventName, cmdName, registered, ...args),
     subscribeEvent: (cmdName, handler) => subscribeEvent(cmdName, handler),
     unsubscribeEvent: (handler) => unsubscribeEvent(handler)
