@@ -18,7 +18,7 @@
                 <div class="vertical-list-item">
                     <div>
                         <h2>是否启用随机延迟</h2>
-                        <span class="secondary-text">开启后，会等待输入区间内的时间后再领取红包，单位ms</span>
+                        <span class="secondary-text">等待区间内的随机时间后再领取红包，单位ms，请输入整数</span>
                     </div>
                     <div id="gr-random-delay-button" class="q-switch">
                         <span class="q-switch__handle"></span>
@@ -39,109 +39,29 @@
                                type="text" placeholder="包含上限值">
                     </div>
                 </div>
+                <hr class="horizontal-dividing-line"/>
             </div>
         </div>
     </section>
 
-    <section class="path">
-        <h1>样式配置</h1>
-        <div class="wrap">
-            <div class="list">
-                <div class="vertical-list-item">
-                    <div>
-                        <h2>EC消息主题色</h2>
-                        <span class="secondary-text">修改EC消息被解密渲染时的边框颜色和解密tag颜色</span>
-                    </div>
-                    <div>
-                        <input type="color" value="#66ccff" id="ec-color-selector"
-                               class="q-button q-button--small q-button--secondary color-picker"/>
-                    </div>
-                </div>
-                <hr class="horizontal-dividing-line"/>
-                <div class="vertical-list-item">
-                    <div>
-                        <h2>是否启用解密Tag</h2>
-                        <span class="secondary-text">消息解密后下方的"原消息：xxx"</span>
-                    </div>
-                    <div id="ec-tag-button" class="q-switch">
-                        <span class="q-switch__handle"></span>
-                    </div>
-                </div>
-                <hr class="horizontal-dividing-line"/>
-                <div class="vertical-list-item">
-                    <div>
-                        <h2>是否启用更明显的开启加密提示</h2>
-                        <span class="secondary-text">开启后聊天框会有主题背景色。原理是filter的drop-shadow，若高版本有bug请关闭</span>
-                    </div>
-                    <div id="ec-enhance-input-area-button" class="q-switch">
-                        <span class="q-switch__handle"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="path">
-        <h1>独立密钥配置</h1>
-        <div class="wrap">
-            <div class="list">
-                <div class="vertical-list-item" style="display: flex; flex-direction: column">
-                    <h1>此处配置单独的群聊密钥(如需要私聊密钥需要手动填写Q号对应的uin)</h1>
-                </div>
-                <hr class="horizontal-dividing-line"/>
-                <div class="key-list-container">
-                    <!--                    <div class="vertical-list-item singal-key-row">-->
-                    <!--                        <div class="independent-key-div">-->
-                    <!--                            <h2 style="margin-right: 5px">备注</h2>-->
-                    <!--                            <input data-type="primary"-->
-                    <!--                                   class="q-input__inner q-input__inner&#45;&#45;clearable custom-input independent-key-input"-->
-                    <!--                                   type="text" placeholder="ID和密钥的备注">-->
-                    <!--                        </div>-->
-                    <!--                        <div class="independent-key-div">-->
-                    <!--                            <h2 style="margin-right: 5px">ID</h2>-->
-                    <!--                            <input data-type="primary"-->
-                    <!--                                   class="q-input__inner q-input__inner&#45;&#45;clearable custom-input independent-key-input"-->
-                    <!--                                   type="text" placeholder="Q号或群号">-->
-                    <!--                        </div>-->
-                    <!--                        <div class="independent-key-div">-->
-                    <!--                            <h2 style="margin-right: 5px">密钥</h2>-->
-                    <!--                            <input data-type="primary"-->
-                    <!--                                   class="q-input__inner q-input__inner&#45;&#45;clearable custom-input independent-key-input"-->
-                    <!--                                   type="text" placeholder="双方需一致">-->
-                    <!--                        </div>-->
-                    <!--                        <button class="q-button q-button&#45;&#45;secondary q-button&#45;&#45;large delete-row-button">×</button>-->
-                    <!--                    </div>-->
-                </div>
-                <hr class="horizontal-dividing-line"/>
-                <div class="vertical-list-item" style="display: flex; flex-direction: column">
-                    <button class="q-button q-button--secondary q-button--large add-row-button">+</button>
-                </div>
-
-
-            </div>
-        </div>
-    </section>
 
     <section class="path">
         <h1>插件说明</h1>
         <div class="wrap">
             <div class="list">
                 <div class="vertical-list-item" style="display: flex; flex-direction: column">
-                    <h1>使用方法：打开聊天窗口，点击输入栏上方右侧的加密图标即可切换是否加密。</h1>
-                    <h2>目前全局共用一个密钥。</h2>
+                    本插件仅供学习参考，任何问题概不负责。
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
-                    <h1>加密图片的缓存在插件目录/decryptedImgs内，每次退出QQ会自动删除缓存。</h1>
+                    <h1>项目地址https://github.com/WJZ-P/LiteLoaderQQNT-Grab-RedBag</h1>
                 </div>
                 <hr class="horizontal-dividing-line"/>
-                <div class="vertical-list-item">
-                    <h1>加密文件下载地址在插件目录/decryptedFiles内。</h1>
+                <div class="vertical-list-item" style="justify-content: center">
+                    <h1>喜欢请点小星星 (✧ω✧)</h1>
                 </div>
                 <hr class="horizontal-dividing-line"/>
-                <div class="vertical-list-item" style="display: flex; flex-direction: column">
-                    <h1>按Ctrl+E可快捷切换EC状态</h1>
-                </div>
+
             </div>
         </div>
     </section>

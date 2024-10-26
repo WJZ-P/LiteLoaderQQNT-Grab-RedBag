@@ -92,11 +92,16 @@ export async function grabRedBag(payload) {
     const chatType = payload.msgList[0].chatType//聊天类型，1是私聊，2是群聊
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
-    const config=await grAPI.getConfig()
-    if(config.useRandomDelay){
+    const config = await grAPI.getConfig()
+    if (config.useRandomDelay) {
 
-        pluginLog("等待随机时间")
+        const lowerBound = parseInt(config.delayLowerBound)
+        const upperBound = parseInt(config.delayUpperBound)
+        const randomDelay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+        pluginLog("等待随机时间" + randomDelay + "ms")
+        await sleep(randomDelay)
     }
+
     const result = await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
         "grabRedBagReq": {
             "recvUin": chatType === 1 ? recvUin : peerUid,//私聊的话是自己Q号，群聊就是peerUid
@@ -110,4 +115,8 @@ export async function grabRedBag(payload) {
         }
     }, {"timeout": 5000})
     pluginLog("抢红包结果为" + JSON.stringify(result))
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(() => resolve(), ms))
 }
