@@ -27,7 +27,7 @@ class Config {
         pluginLog('配置初始化完毕')
     }
 
-    static async getConfig() {
+    static getConfig() {
         try {
             return this.config
         } catch (e) {
@@ -35,9 +35,10 @@ class Config {
         }
     }
 
-    static async setConfig(newConfig) {
+    static setConfig(newConfig) {
         try {
             // 使用 Object.assign() 更新 config 对象的属性
+            pluginLog("变化的属性为"+JSON.stringify(newConfig))
             Object.assign(this.config, newConfig);
             // 写入配置文件
             fs.writeFile(this.config.configPath, JSON.stringify(this.config, null, 4), 'utf-8', (err) => {
@@ -45,7 +46,8 @@ class Config {
                     pluginLog('修改配置文件失败')
                 }
             })
-            pluginLog('修改配置文件成功')
+            pluginLog('修改配置文件成功,当前配置如下')
+            pluginLog(JSON.stringify(this.config,null, 4))
             return this.config
         } catch (e) {
             console.log(e)

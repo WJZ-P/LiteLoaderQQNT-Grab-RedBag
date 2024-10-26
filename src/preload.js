@@ -8,9 +8,19 @@ if (!webContentsId) {
 
 // 在window对象下导出只读对象
 contextBridge.exposeInMainWorld("grab_redbag", {
+    getMenuHTML: () => ipcRenderer.invoke("LiteLoader.grab_redbag.getMenuHTML"),
+    getConfig: () => ipcRenderer.invoke("LiteLoader.grab_redbag.getConfig"),
+    setConfig: (newConfig) => ipcRenderer.invoke("LiteLoader.grab_redbag.setConfig", newConfig),
     invokeNative: (eventName, cmdName, registered, ...args) => invokeNative(eventName, cmdName, registered, ...args),
     subscribeEvent: (cmdName, handler) => subscribeEvent(cmdName, handler),
-    unsubscribeEvent: (handler) => unsubscribeEvent(handler)
+    unsubscribeEvent: (handler) => unsubscribeEvent(handler),
+    addEventListener: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args)),
+
+    //发送消息到所有聊天窗口
+    sendMsgToChatWindows: (message, arg) => {
+        //console.log(message,arg)
+        ipcRenderer.send("LiteLoader.grab_redbag.sendMsgToChatWindows", message, arg)
+    },
 });
 
 
