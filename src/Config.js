@@ -5,8 +5,8 @@ class Config {
     static config = {
         isActive: true,//是否开启抢红包功能
         useRandomDelay: false,//是否启用随机延迟
-        delayLowerBound: 0,
-        delayUpperBound: 500,
+        delayLowerBound: "",
+        delayUpperBound: "",
         avoidKeyWords: [],//屏蔽词
         isSendNotice: false,//抢到红包后是否给自己发送消息
     }

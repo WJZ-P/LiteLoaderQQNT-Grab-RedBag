@@ -3,10 +3,9 @@ import {pluginLog} from "./utils/frontLogUtils.js";
 import {SettingListeners} from "./utils/SettingListeners.js";
 
 const grAPI = window.grab_redbag
-onLoad();//注入
+let grabRedBagListener = undefined//保存监听器
 
-//保存监听器
-let grabRedBagListener = undefined
+await onLoad();//注入
 
 // 打开设置界面时触发
 export const onSettingWindowCreated = async view => {
@@ -28,12 +27,11 @@ export const onSettingWindowCreated = async view => {
 }
 
 
-function onLoad() {
-    pluginLog("正在调用onLoad函数")
+async function onLoad() {
     if (location.hash === "#/blank") {
         navigation.addEventListener("navigatesuccess", onHashUpdate, {once: true});
     } else {
-        onHashUpdate();
+        await onHashUpdate();
     }
 
     pluginLog('onLoad函数加载完成')
@@ -45,12 +43,11 @@ async function onHashUpdate() {
     if (!(hash.includes("#/main/message") || hash.includes("#/chat"))) return;//不符合条件直接返回
 
     grAPI.addEventListener('LiteLoader.grab_redbag.unSubscribeListener', () => grAPI.unsubscribeEvent(grabRedBagListener)) //收到取消订阅消息，取消订阅红包消息
-    grAPI.addEventListener('LiteLoader.grab_redbag.SubscribeListener', () => {
+    grAPI.addEventListener('LiteLoader.grab_redbag.subscribeListener', () => {
         pluginLog("渲染进程收到请求，准备监听红包事件。")
         grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => grabRedBag(payload))
 
     })//添加订阅
-
 
     pluginLog('执行onHashUpdate')
     //"nodeIKernelMsgListener/onAddSendMsg"
@@ -60,7 +57,6 @@ async function onHashUpdate() {
             pluginLog("功能未开启，不监听抢红包事件")
             return
         }
-
         grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => grabRedBag(payload))
         pluginLog("事件监听成功")
     } catch (e) {
@@ -96,6 +92,11 @@ export async function grabRedBag(payload) {
     const chatType = payload.msgList[0].chatType//聊天类型，1是私聊，2是群聊
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
+    const config=await grAPI.getConfig()
+    if(config.useRandomDelay){
+
+        pluginLog("等待随机时间")
+    }
     const result = await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
         "grabRedBagReq": {
             "recvUin": chatType === 1 ? recvUin : peerUid,//私聊的话是自己Q号，群聊就是peerUid

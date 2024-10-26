@@ -27,7 +27,7 @@ module.exports.onBrowserWindowCreated = window => {
     });
 
     window.webContents.on("did-stop-loading", async () => {
-        if (window.id === 2) {//只改QQ主窗口就行了
+        if (window.id === 2 && chatWindows.length === 0) {//只改QQ主窗口就行了
             chatWindows.push(window)
         }
     })
@@ -40,8 +40,8 @@ module.exports.onBrowserWindowCreated = window => {
  */
 function sendMsgToChatWindows(message, args) {
     pluginLog('给所有渲染进程发送消息')
-    // pluginLog('所有聊天窗口如下')
-    // console.log(chatWindows)
+    pluginLog('所有聊天窗口如下')
+    console.log(chatWindows)
     for (const window of chatWindows) {
         if (window.isDestroyed()) continue;
         window.webContents.send(message, args);
@@ -55,7 +55,7 @@ function onLoad() {
     ipcMain.handle("LiteLoader.grab_redbag.getConfig", () => Config.getConfig())
     ipcMain.handle("LiteLoader.grab_redbag.setConfig", async (event, newConfig) => Config.setConfig(newConfig))//更新配置，并且返回新的配置
     ipcMain.on("LiteLoader.grab_redbag.sendMsgToChatWindows", (_, message, args) => {
-        console.log('主进程准备处理sendMsgToChatWindows')
+        pluginLog('主进程准备处理sendMsgToChatWindows')
         pluginLog(_, message, args)
         sendMsgToChatWindows(message, args)
     })
