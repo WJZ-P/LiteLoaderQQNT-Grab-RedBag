@@ -1,0 +1,289 @@
+<meta charset="UTF-8">
+<div class="config-menu config_view">
+    <section class="path">
+        <h1>主要配置</h1>
+        <div class="wrap">
+            <div class="list">
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>是否启用自动抢红包</h2>
+                        <span class="secondary-text">动态更新，无需重启QQ</span>
+                    </div>
+                    <div id="gr-active-button" class="q-switch">
+                        <span class="q-switch__handle"></span>
+                    </div>
+                </div>
+
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>是否启用随机延迟</h2>
+                        <span class="secondary-text">开启后，会等待输入区间内的时间后再领取红包，单位ms</span>
+                    </div>
+                    <div id="gr-random-delay-button" class="q-switch">
+                        <span class="q-switch__handle"></span>
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div class="independent-key-div">
+                        <h2 style="margin-right: 25px">延迟下限</h2>
+                        <input data-type="primary" id="gr-lower-bound-input"
+                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                               type="text" placeholder="包含下限值">
+                    </div>
+                    <div class="independent-key-div">
+                        <h2 style="margin-right: 25px">延迟上限</h2>
+                        <input data-type="primary" id="gr-upper-bound-input"
+                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                               type="text" placeholder="包含上限值">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="path">
+        <h1>样式配置</h1>
+        <div class="wrap">
+            <div class="list">
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>EC消息主题色</h2>
+                        <span class="secondary-text">修改EC消息被解密渲染时的边框颜色和解密tag颜色</span>
+                    </div>
+                    <div>
+                        <input type="color" value="#66ccff" id="ec-color-selector"
+                               class="q-button q-button--small q-button--secondary color-picker"/>
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>是否启用解密Tag</h2>
+                        <span class="secondary-text">消息解密后下方的"原消息：xxx"</span>
+                    </div>
+                    <div id="ec-tag-button" class="q-switch">
+                        <span class="q-switch__handle"></span>
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>是否启用更明显的开启加密提示</h2>
+                        <span class="secondary-text">开启后聊天框会有主题背景色。原理是filter的drop-shadow，若高版本有bug请关闭</span>
+                    </div>
+                    <div id="ec-enhance-input-area-button" class="q-switch">
+                        <span class="q-switch__handle"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="path">
+        <h1>独立密钥配置</h1>
+        <div class="wrap">
+            <div class="list">
+                <div class="vertical-list-item" style="display: flex; flex-direction: column">
+                    <h1>此处配置单独的群聊密钥(如需要私聊密钥需要手动填写Q号对应的uin)</h1>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="key-list-container">
+                    <!--                    <div class="vertical-list-item singal-key-row">-->
+                    <!--                        <div class="independent-key-div">-->
+                    <!--                            <h2 style="margin-right: 5px">备注</h2>-->
+                    <!--                            <input data-type="primary"-->
+                    <!--                                   class="q-input__inner q-input__inner&#45;&#45;clearable custom-input independent-key-input"-->
+                    <!--                                   type="text" placeholder="ID和密钥的备注">-->
+                    <!--                        </div>-->
+                    <!--                        <div class="independent-key-div">-->
+                    <!--                            <h2 style="margin-right: 5px">ID</h2>-->
+                    <!--                            <input data-type="primary"-->
+                    <!--                                   class="q-input__inner q-input__inner&#45;&#45;clearable custom-input independent-key-input"-->
+                    <!--                                   type="text" placeholder="Q号或群号">-->
+                    <!--                        </div>-->
+                    <!--                        <div class="independent-key-div">-->
+                    <!--                            <h2 style="margin-right: 5px">密钥</h2>-->
+                    <!--                            <input data-type="primary"-->
+                    <!--                                   class="q-input__inner q-input__inner&#45;&#45;clearable custom-input independent-key-input"-->
+                    <!--                                   type="text" placeholder="双方需一致">-->
+                    <!--                        </div>-->
+                    <!--                        <button class="q-button q-button&#45;&#45;secondary q-button&#45;&#45;large delete-row-button">×</button>-->
+                    <!--                    </div>-->
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item" style="display: flex; flex-direction: column">
+                    <button class="q-button q-button--secondary q-button--large add-row-button">+</button>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+    <section class="path">
+        <h1>插件说明</h1>
+        <div class="wrap">
+            <div class="list">
+                <div class="vertical-list-item" style="display: flex; flex-direction: column">
+                    <h1>使用方法：打开聊天窗口，点击输入栏上方右侧的加密图标即可切换是否加密。</h1>
+                    <h2>目前全局共用一个密钥。</h2>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <h1>加密图片的缓存在插件目录/decryptedImgs内，每次退出QQ会自动删除缓存。</h1>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <h1>加密文件下载地址在插件目录/decryptedFiles内。</h1>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item" style="display: flex; flex-direction: column">
+                    <h1>按Ctrl+E可快捷切换EC状态</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <style>
+        .custom-input {
+            color: gray;
+            /*background-color: #abbbbb; !* 暗色背景 *!*/
+        }
+
+        .independent-key-input {
+            width: 50%;
+        }
+
+        .independent-key-div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            width: 50%;
+        }
+
+        .q-input__inner {
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            padding: 4px;
+            font-size: 14px;
+        }
+
+        .left-part {
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+        }
+
+        /* 通用 */
+        .config_view {
+            margin: 20px;
+            overflow-y: auto;
+        }
+
+        .config_view h1 {
+            color: var(--text_primary);
+            font-weight: var(--font-bold);
+            font-size: min(var(--font_size_3), 18px);
+            line-height: min(var(--line_height_3), 24px);
+            padding: 0px 16px;
+            margin-bottom: 8px;
+        }
+
+        .config_view .wrap {
+            /* Linux样式兼容：--fg_white */
+            background-color: var(--fill_light_primary, var(--fg_white));
+            border-radius: 8px;
+            font-size: min(var(--font_size_3), 18px);
+            line-height: min(var(--line_height_3), 24px);
+            margin-bottom: 20px;
+            overflow: hidden;
+            padding: 0px 16px;
+        }
+
+        .config_view .vertical-list-item {
+            margin: 10px 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .config_view .horizontal-dividing-line {
+            border: unset;
+            margin: unset;
+            height: 1px;
+            background-color: rgba(127, 127, 127, 0.15);
+        }
+
+        .config_view .secondary-text {
+            color: var(--text_secondary);
+            font-size: min(var(--font_size_2), 16px);
+            line-height: min(var(--line_height_2), 22px);
+            margin-top: 4px;
+        }
+
+        .config_view .wrap .title svg {
+            width: 1em;
+            height: 1em;
+            transform: rotate(-180deg);
+            transition-duration: 0.2s;
+            transition-timing-function: ease;
+            transition-delay: 0s;
+            transition-property: transform;
+        }
+
+        .config_view .modal-dialog header {
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+        }
+
+        .config_view .modal-dialog main {
+            padding: 0px 16px;
+        }
+
+        .config_view .modal-dialog main p {
+            margin: 8px 0px;
+        }
+
+        .config_view .modal-dialog footer {
+            height: 30px;
+            display: flex;
+            justify-content: right;
+            align-items: center;
+        }
+
+
+        /* 版本号 */
+        .config_view .versions .wrap {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0px;
+        }
+
+        .config_view .versions .wrap > div {
+            flex: 1;
+            margin: 0px 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+
+        @media (prefers-color-scheme: light) {
+            .text_color {
+                color: black;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .text_color {
+                color: white;
+            }
+        }
+
+    </style>
+</div>
