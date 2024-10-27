@@ -4,6 +4,7 @@ import {SettingListeners} from "./utils/SettingListeners.js";
 
 const grAPI = window.grab_redbag
 let grabRedBagListener = undefined//保存监听器
+let hasActived = false
 
 await onLoad();//注入
 
@@ -63,8 +64,11 @@ async function onHashUpdate() {
 
         //有人加群的时候会触发onGroupListUpdate
         grAPI.subscribeEvent("onGroupListUpdate", (payload) => {
-            pluginLog("监听到onGroupListUpdate")
-            console.log(payload)
+            //pluginLog("监听到onGroupListUpdate")
+            //console.log(payload)
+            if (hasActived) return
+            hasActived = true;
+            activeAllGroups(payload.groupList)
         })
         const result = await grAPI.invokeNative('ns-NodeStoreApi', "getGroupList", false)
         console.log(result)
@@ -128,9 +132,17 @@ async function grabRedBag(payload) {
 }
 
 //激活所有的群聊消息yua
-function activeAllGroups(groupList) {
+async function activeAllGroups(groupList) {
     for (const group of groupList) {
-
+        //应该对每个group调用active方法
+        const result = await grAPI.invokeNative("ns-ntApi", "nodeIKernelMsgService/getAioFirstViewLatestMsgsAndAddActiveChat", false, {
+            "peer": {
+                "chatType": 2,
+                "peerUid": group.groupCode,
+                "guildId": ""
+            }, "cnt": 0
+        }, null)
+        pluginLog(`激活群聊"${group.groupName}"的消息，结果为` + result)
     }
 }
 
