@@ -3,7 +3,7 @@
     "type": "extension",
     "name": "自动抢红包",
     "slug": "grab_redbag",
-    "description": "基于协议层的自动抢红包插件ヽ(＾Д＾)ﾉ",
+    "description": "基于IPC通信的自动抢红包插件ヽ(＾Д＾)ﾉ",
     "version": "1.0.0",
     "icon": "./src/assests/savings.svg",
     "thumb": "./src/assests/savings.svg",
