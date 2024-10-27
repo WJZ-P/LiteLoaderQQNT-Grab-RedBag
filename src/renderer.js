@@ -104,6 +104,7 @@ async function grabRedBag(payload) {
     const wishing = wallEl.receiver.title
     const index = wallEl.stringIndex
     const chatType = payload.msgList[0].chatType//聊天类型，1是私聊，2是群聊
+    const peerName = payload.msgList[0].peerName//群聊名字
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
     const config = await grAPI.getConfig()
@@ -129,9 +130,33 @@ async function grabRedBag(payload) {
         }
     }, {"timeout": 5000})
     pluginLog("抢红包结果为" + JSON.stringify(result))
+
+    if (config.useSelfNotice) {
+        pluginLog("准备给自己发送消息")
+        await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+            "msgId": "0",
+            "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
+            "msgElements": [{
+                "elementType": 1,
+                "elementId": "",
+                "textElement": {
+                    "content": `[Grab RedBag]收到来自"${peerName}":${peerUid}的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
+                    "atType": 0,
+                    "atUid": "",
+                    "atTinyId": "",
+                    "atNtUid": ""
+                }
+            }],
+            "msgAttributeInfos": new Map()
+        }, null)
+    }
+
+    if(config.thanksMsg.trim()!==""){//给对方发送消息
+
+    }
 }
 
-//激活所有的群聊消息yua
+//激活所有的群聊消息
 async function activeAllGroups(groupList) {
     for (const group of groupList) {
         //应该对每个group调用active方法
@@ -142,7 +167,8 @@ async function activeAllGroups(groupList) {
                 "guildId": ""
             }, "cnt": 0
         }, null)
-        pluginLog(`激活群聊"${group.groupName}"的消息，结果为` + result)
+        // pluginLog(`激活群聊"${group.groupName}"的消息，结果为`)
+        // console.log(result)
     }
 }
 

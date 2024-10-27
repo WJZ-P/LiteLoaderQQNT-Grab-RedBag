@@ -8,7 +8,9 @@ class Config {
         delayLowerBound: "",
         delayUpperBound: "",
         avoidKeyWords: [],//屏蔽词
-        isSendNotice: false,//抢到红包后是否给自己发送消息
+        avoidGroups: [],//屏蔽群聊
+        useSelfNotice: true,//抢到红包后是否给自己发送消息
+        thanksMsg: "",//抢到红包之后的感谢消息
     }
 
     static initConfig(pluginPath, configPath) {
@@ -38,7 +40,7 @@ class Config {
     static setConfig(newConfig) {
         try {
             // 使用 Object.assign() 更新 config 对象的属性
-            pluginLog("变化的属性为"+JSON.stringify(newConfig))
+            pluginLog("变化的属性为" + JSON.stringify(newConfig))
             Object.assign(this.config, newConfig);
             // 写入配置文件
             fs.writeFile(this.config.configPath, JSON.stringify(this.config, null, 4), 'utf-8', (err) => {
@@ -47,7 +49,7 @@ class Config {
                 }
             })
             pluginLog('修改配置文件成功,当前配置如下')
-            pluginLog(JSON.stringify(this.config,null, 4))
+            pluginLog(JSON.stringify(this.config, null, 4))
             return this.config
         } catch (e) {
             console.log(e)

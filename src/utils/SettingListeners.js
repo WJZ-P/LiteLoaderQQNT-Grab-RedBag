@@ -58,11 +58,33 @@ export class SettingListeners {
         })
     }
 
+    async feedbackMsgButtonListener() {
+        const button = this.document.querySelector('#gr-feedback-msg-button')
+        if ((await grAPI.getConfig()).useSelfNotice) button.classList.toggle('is-active')
+
+        button.addEventListener('click', async () => {
+            const useSelfNotice = (await grAPI.getConfig()).useSelfNotice
+            button.classList.toggle('is-active')
+            //修改状态
+            await grAPI.setConfig({useSelfNotice: !useSelfNotice})
+        })
+    }
+
+    async thanksMsgInputListener() {
+        const input = this.document.querySelector('#gr-thanks-msg-input')
+        input.value = (await grAPI.getConfig()).thanksMsg
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({thanksMsg: event.target.value})
+        })
+    }
+
 
     async onLoad() {
         this.activeButtonListener()
         this.randomDelayButtonListener()
         this.lowerBoundInputListener()
         this.upperBoundInputListener()
+        this.feedbackMsgButtonListener()
+        this.thanksMsgInputListener()
     }
 }
