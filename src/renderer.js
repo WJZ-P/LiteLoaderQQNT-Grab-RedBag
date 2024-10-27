@@ -46,7 +46,6 @@ async function onHashUpdate() {
     grAPI.addEventListener('LiteLoader.grab_redbag.subscribeListener', () => {
         pluginLog("渲染进程收到请求，准备监听红包事件。")
         grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => grabRedBag(payload))
-
     })//添加订阅
 
     pluginLog('执行onHashUpdate')
@@ -59,12 +58,23 @@ async function onHashUpdate() {
         }
         grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => grabRedBag(payload))
         pluginLog("事件监听成功")
+
+        //尝试获取群列表
+
+        //有人加群的时候会触发onGroupListUpdate
+        grAPI.subscribeEvent("onGroupListUpdate", (payload) => {
+            pluginLog("监听到onGroupListUpdate")
+            console.log(payload)
+        })
+        const result = await grAPI.invokeNative('ns-NodeStoreApi', "getGroupList", false)
+        console.log(result)
+
     } catch (e) {
         console.log(e)
     }
 }
 
-export async function grabRedBag(payload) {
+async function grabRedBag(payload) {
     // pluginLog("下面是onRecvActiveMsg的payload")
     //console.log(payload)
     let wallEl = null
@@ -115,6 +125,13 @@ export async function grabRedBag(payload) {
         }
     }, {"timeout": 5000})
     pluginLog("抢红包结果为" + JSON.stringify(result))
+}
+
+//激活所有的群聊消息yua
+function activeAllGroups(groupList) {
+    for (const group of groupList) {
+
+    }
 }
 
 async function sleep(ms) {
