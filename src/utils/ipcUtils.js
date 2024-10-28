@@ -24,3 +24,5 @@ async function ipcdeleteActiveChatByUidModify(args) {
     args[3][1][1] = ""//取消激活的群号改为空
     return args
 }
+
+module.exports={ipcModifyer}

@@ -4,6 +4,7 @@ const path = require("path");
 const {pluginLog} = require("./utils/logUtils");
 const {Config} = require("./Config");
 const fs = require("fs");
+const {ipcModifyer} = require("./utils/ipcUtils");
 const pluginPath = path.join(LiteLoader.plugins.grab_redbag.path.plugin);//插件目录
 const configPath = path.join(pluginPath, "config.json");
 const config = Config.config
@@ -27,9 +28,9 @@ module.exports.onBrowserWindowCreated = window => {
     });
 
     window.webContents.on("did-stop-loading", async () => {
-        if (window.id === 2 && chatWindows.length === 0) {//只改QQ主窗口就行了
+        if (window.id === 2 && chatWindows.length===0) {//只改QQ主窗口就行了
             chatWindows.push(window)
-
+            //pluginLog(JSON.stringify(config))
 
             if (config.isActiveAllGroups)//如果激活所有群，就拦截取消激活的事件，使得激活的聊天不会被取消
             {
