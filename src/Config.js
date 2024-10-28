@@ -11,6 +11,7 @@ class Config {
         avoidGroups: [],//屏蔽群聊
         useSelfNotice: true,//抢到红包后是否给自己发送消息
         thanksMsg: "",//抢到红包之后的感谢消息
+        isActiveAllGroups:false//是否监听所有的群聊
     }
 
     static initConfig(pluginPath, configPath) {

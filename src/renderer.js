@@ -63,13 +63,18 @@ async function onHashUpdate() {
         //尝试获取群列表
 
         //有人加群的时候会触发onGroupListUpdate
-        grAPI.subscribeEvent("onGroupListUpdate", (payload) => {
-            //pluginLog("监听到onGroupListUpdate")
-            //console.log(payload)
-            if (hasActived) return
-            hasActived = true;
-            activeAllGroups(payload.groupList)
-        })
+        grAPI.subscribeEvent("onGroupListUpdate", async (payload) => {
+                //pluginLog("监听到onGroupListUpdate")
+                //console.log(payload)
+                if (hasActived) return
+                hasActived = true;
+                if ((await grAPI.getConfig()).isActiveAllGroups) {
+                    pluginLog("激活所有聊天")
+                    await activeAllGroups(payload.groupList)
+                }
+            }
+        )
+
         const result = await grAPI.invokeNative('ns-NodeStoreApi', "getGroupList", false)
         console.log(result)
 
@@ -105,9 +110,18 @@ async function grabRedBag(payload) {
     const index = wallEl.stringIndex
     const chatType = payload.msgList[0].chatType//聊天类型，1是私聊，2是群聊
     const peerName = payload.msgList[0].peerName//群聊名字
+    const title = wallEl.receiver.title
+    const config = await grAPI.getConfig()
+
+    //先判断有没有屏蔽词或者是不是来自屏蔽群
+    if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid)) {
+        pluginLog("检测到屏蔽词或在屏蔽群内，不抢红包")
+        return
+    }
+
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
-    const config = await grAPI.getConfig()
+
     if (config.useRandomDelay) {
 
         const lowerBound = parseInt(config.delayLowerBound)
@@ -116,6 +130,7 @@ async function grabRedBag(payload) {
         pluginLog("等待随机时间" + randomDelay + "ms")
         await sleep(randomDelay)
     }
+
 
     const result = await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
         "grabRedBagReq": {

@@ -30,6 +30,18 @@ export class SettingListeners {
         })
     }
 
+    async activeAllGroupsButtonListener() {
+        const button = this.document.querySelector('#gr-active-all-chat-button')
+        if ((await grAPI.getConfig()).isActiveAllGroups) button.classList.toggle('is-active')
+
+        button.addEventListener('click', async () => {
+            const isActiveAllGroups = (await grAPI.getConfig()).isActiveAllGroups
+            button.classList.toggle('is-active')
+            //修改状态
+            await grAPI.setConfig({isActiveAllGroups: !isActiveAllGroups})
+        })
+    }
+
     async randomDelayButtonListener() {
         const delayButton = this.document.querySelector('#gr-random-delay-button')
         if ((await grAPI.getConfig()).useRandomDelay) delayButton.classList.toggle('is-active')
@@ -78,6 +90,22 @@ export class SettingListeners {
         })
     }
 
+    async avoidWordsInputListener() {
+        const input = this.document.querySelector('#gr-avoid-words-input')
+        input.value = (await grAPI.getConfig()).avoidKeyWords.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({avoidKeyWords: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
+    async avoidGroupsInputListener() {
+        const input = this.document.querySelector('#gr-avoid-groups-input')
+        input.value = (await grAPI.getConfig()).avoidGroups.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({avoidGroups: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
 
     async onLoad() {
         this.activeButtonListener()
@@ -86,5 +114,8 @@ export class SettingListeners {
         this.upperBoundInputListener()
         this.feedbackMsgButtonListener()
         this.thanksMsgInputListener()
+        this.avoidWordsInputListener()
+        this.avoidGroupsInputListener()
+        this.activeAllGroupsButtonListener()
     }
 }

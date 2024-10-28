@@ -16,6 +16,16 @@
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div>
+                        <h2>监听所有群消息</h2>
+                        <span class="secondary-text">默认方式下可能收不到某些群消息，开启后激活所有群，若群聊过多可能卡顿</span>
+                    </div>
+                    <div id="gr-active-all-chat-button" class="q-switch">
+                        <span class="q-switch__handle"></span>
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
                         <h2>启用回馈消息</h2>
                         <span class="secondary-text">抢到红包后给自己发送消息</span>
                     </div>
@@ -57,6 +67,26 @@
                     <input data-type="primary" id="gr-thanks-msg-input" style="width: fit-content"
                                class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                                type="text" placeholder="留空则默认不发送">
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>屏蔽关键字</h2>
+                        <span class="secondary-text">用英文逗号隔开，红包名含关键字则不抢红包</span>
+                    </div>
+                    <input data-type="primary" id="gr-avoid-words-input" style="width: fit-content"
+                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                               type="text" placeholder="留空则默认抢所有红包">
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>屏蔽群聊</h2>
+                        <span class="secondary-text">用英文逗号隔开，红包来自对应群聊则不抢红包，写群号</span>
+                    </div>
+                    <input data-type="primary" id="gr-avoid-groups-input" style="width: fit-content"
+                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                               type="text" placeholder="留空则默认抢所有红包">
                 </div>
             </div>
         </div>
