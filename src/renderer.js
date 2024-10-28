@@ -151,8 +151,24 @@ async function grabRedBag(payload) {
         }, null)
     }
 
-    if(config.thanksMsg.trim()!==""){//给对方发送消息
-
+    if (config.thanksMsg.trim() !== "") {//给对方发送消息
+        pluginLog("准备给对方发送消息")
+        await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+            "msgId": "0",
+            "peer": {"chatType": chatType, "peerUid": peerUid, "guildId": ""},
+            "msgElements": [{
+                "elementType": 1,
+                "elementId": "",
+                "textElement": {
+                    "content": config.thanksMsg,
+                    "atType": 0,
+                    "atUid": "",
+                    "atTinyId": "",
+                    "atNtUid": ""
+                }
+            }],
+            "msgAttributeInfos": new Map()
+        }, null)
     }
 }
 
