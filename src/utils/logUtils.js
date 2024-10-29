@@ -8,4 +8,5 @@ function hexToAnsi(hex) {
 function pluginLog(message){
     return console.log(pluginName+message)
 }
+
 module.exports={pluginLog}
