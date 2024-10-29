@@ -163,10 +163,28 @@ async function grabRedBag(payload) {
             "index": index
         }
     }, {"timeout": 5000})
-    pluginLog("抢红包结果为" + JSON.stringify(result))
+    pluginLog("抢红包结果为" + JSON.stringify(result, null, 4))
 
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
+        if (result.grabRedBagRsp.recvdOrder.amount === "0")
+            await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+            "msgId": "0",
+            "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
+            "msgElements": [{
+                "elementType": 1,
+                "elementId": "",
+                "textElement": {
+                    "content": `[Grab RedBag]抢来自"${peerName}":${peerUid}的红包时失败！红包已被领完！`,
+                    "atType": 0,
+                    "atUid": "",
+                    "atTinyId": "",
+                    "atNtUid": ""
+                }
+            }],
+            "msgAttributeInfos": new Map()
+        }, null)
+        else
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
             "msgId": "0",
             "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
@@ -185,7 +203,7 @@ async function grabRedBag(payload) {
         }, null)
     }
 
-    if (config.thanksMsgs.length!==0) {//给对方发送消息
+    if (config.thanksMsgs.length !== 0) {//给对方发送消息
         await sleep(randomDelayForSend)
         pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
