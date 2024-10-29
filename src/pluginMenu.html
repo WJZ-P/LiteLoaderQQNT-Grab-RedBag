@@ -65,8 +65,45 @@
                         <span class="secondary-text">抢到红包后给对方发送感谢消息</span>
                     </div>
                     <input data-type="primary" id="gr-thanks-msg-input" style="width: fit-content"
-                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
-                               type="text" placeholder="留空则默认不发送">
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认不发送">
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div class="left-part">
+                        <h2>白/黑名单模式</h2>
+                        <div style="display: flex; flex-direction: column">
+                            <span class="secondary-text">白名单只接受指定群红包，黑名单则屏蔽对应群的红包</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label>
+                            <select id="gr-block-type-selector">
+                                <option value="0">不启用</option>
+                                <option value="Bangboo">白名单模式</option>
+                                <option value="Hilichurl">黑名单模式</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>识别关键字</h2>
+                        <span class="secondary-text">用英文逗号隔开，红包名含关键字才会抢红包</span>
+                    </div>
+                    <input data-type="primary" id="gr-avoid-words-input" style="width: fit-content"
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认抢所有红包">
+                </div>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>监听群聊</h2>
+                        <span class="secondary-text">用英文逗号隔开，红包来自对应群聊才会抢红包，写群号</span>
+                    </div>
+                    <input data-type="primary" id="gr-avoid-groups-input" style="width: fit-content"
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认抢所有红包">
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
@@ -75,18 +112,17 @@
                         <span class="secondary-text">用英文逗号隔开，红包名含关键字则不抢红包</span>
                     </div>
                     <input data-type="primary" id="gr-avoid-words-input" style="width: fit-content"
-                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
-                               type="text" placeholder="留空则默认抢所有红包">
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认抢所有红包">
                 </div>
-                <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div>
                         <h2>屏蔽群聊</h2>
                         <span class="secondary-text">用英文逗号隔开，红包来自对应群聊则不抢红包，写群号</span>
                     </div>
                     <input data-type="primary" id="gr-avoid-groups-input" style="width: fit-content"
-                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
-                               type="text" placeholder="留空则默认抢所有红包">
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认抢所有红包">
                 </div>
             </div>
         </div>
@@ -116,6 +152,37 @@
 
 
     <style>
+        #gr-block-type-selector {
+            color: gray;
+            width: 180px;
+            font-size: 14px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            background-color: var(--background-color-05); /*跟随主题色*/
+            cursor: pointer;
+            outline: none;
+            padding: 3px;
+
+        }
+
+        #gr-block-type-selector option {
+            background-color: var(--background-color-05); /* 修改选项的背景色 */
+            opacity: 0.8;
+            color: #333;
+            padding: 10px;
+            font-size: 15px;
+        }
+
+        #gr-block-type-selector option:hover {
+            background-color: #66ccff; /* 当鼠标悬停时的背景色 */
+            color: #fff; /* 改变文字颜色 */
+        }
+
+        #gr-block-type-selector:focus {
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
         .custom-input {
             color: gray;
             /*background-color: #abbbbb; !* 暗色背景 *!*/
