@@ -82,11 +82,11 @@ export class SettingListeners {
         })
     }
 
-    async thanksMsgInputListener() {
+    async thanksMsgsInputListener() {
         const input = this.document.querySelector('#gr-thanks-msg-input')
-        input.value = (await grAPI.getConfig()).thanksMsg
+        input.value = (await grAPI.getConfig()).thanksMsgs.join(",")
         input.addEventListener('change', async event => {
-            await grAPI.setConfig({thanksMsg: event.target.value})
+            await grAPI.setConfig({thanksMsgs: event.target.value.split(',').filter(item => item.trim() !== "")})
         })
     }
 
@@ -106,6 +106,37 @@ export class SettingListeners {
         })
     }
 
+    async keyWordsInputListener() {
+        const input = this.document.querySelector('#gr-key-words-input')
+        input.value = (await grAPI.getConfig()).listenKeyWords.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({listenKeyWords: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
+    async keyGroupsInputListener() {
+        const input = this.document.querySelector('#gr-key-groups-input')
+        input.value = (await grAPI.getConfig()).listenGroups.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({listenGroups: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
+    //监听黑、白名单模式切换
+    async blockTypeListener() {
+        let blockType = undefined
+        const typeSelEl = this.document.querySelector('#gr-block-type-selector')
+        typeSelEl.value = (await grAPI.getConfig()).blockType
+
+        typeSelEl.addEventListener('change', async event => {
+            blockType = event.target.value
+
+            // 发送设置密钥事件
+            await grAPI.setConfig({blockType: blockType})
+            console.log('[GR]名单设置为' + blockType)
+        })
+    }
+
 
     async onLoad() {
         this.activeButtonListener()
@@ -113,9 +144,12 @@ export class SettingListeners {
         this.lowerBoundInputListener()
         this.upperBoundInputListener()
         this.feedbackMsgButtonListener()
-        this.thanksMsgInputListener()
+        this.thanksMsgsInputListener()
         this.avoidWordsInputListener()
         this.avoidGroupsInputListener()
         this.activeAllGroupsButtonListener()
+        this.blockTypeListener()
+        this.keyGroupsInputListener()
+        this.keyWordsInputListener()
     }
 }

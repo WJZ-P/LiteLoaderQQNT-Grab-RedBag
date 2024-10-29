@@ -122,11 +122,12 @@ async function grabRedBag(payload) {
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
 
+    let randomDelay=0
     if (config.useRandomDelay) {
 
         const lowerBound = parseInt(config.delayLowerBound)
         const upperBound = parseInt(config.delayUpperBound)
-        const randomDelay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+        randomDelay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
         pluginLog("等待随机时间" + randomDelay + "ms")
         await sleep(randomDelay)
     }
@@ -166,7 +167,9 @@ async function grabRedBag(payload) {
         }, null)
     }
 
-    if (config.thanksMsg.trim() !== "") {//给对方发送消息
+    if (config.thanksMsgs.trim() !== "") {//给对方发送消息
+        if (config.useRandomDelay) await sleep(randomDelay)
+
         pluginLog("准备给对方发送消息")
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
             "msgId": "0",

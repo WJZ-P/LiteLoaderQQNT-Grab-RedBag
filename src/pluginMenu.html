@@ -37,7 +37,7 @@
                 <div class="vertical-list-item">
                     <div>
                         <h2>启用随机延迟</h2>
-                        <span class="secondary-text">等待区间内的随机时间后再领取红包，单位ms，请输入整数</span>
+                        <span class="secondary-text">等待区间内的随机时间后再领取红包和发送回馈消息，单位ms，请输入整数</span>
                     </div>
                     <div id="gr-random-delay-button" class="q-switch">
                         <span class="q-switch__handle"></span>
@@ -62,11 +62,11 @@
                 <div class="vertical-list-item">
                     <div>
                         <h2>启用感谢消息</h2>
-                        <span class="secondary-text">抢到红包后给对方发送感谢消息</span>
+                        <span class="secondary-text">抢到红包后给对方发送感谢消息,多条随机发送请用英文逗号隔开</span>
                     </div>
                     <input data-type="primary" id="gr-thanks-msg-input" style="width: fit-content"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
-                           type="text" placeholder="留空则默认不发送">
+                           type="text" placeholder="留空不发送，支持随机消息">
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
@@ -92,7 +92,7 @@
                         <h2>识别关键字</h2>
                         <span class="secondary-text">用英文逗号隔开，红包名含关键字才会抢红包</span>
                     </div>
-                    <input data-type="primary" id="gr-avoid-words-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-key-words-input" style="width: fit-content"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
@@ -101,7 +101,7 @@
                         <h2>监听群聊</h2>
                         <span class="secondary-text">用英文逗号隔开，红包来自对应群聊才会抢红包，写群号</span>
                     </div>
-                    <input data-type="primary" id="gr-avoid-groups-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-key-groups-input" style="width: fit-content"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>

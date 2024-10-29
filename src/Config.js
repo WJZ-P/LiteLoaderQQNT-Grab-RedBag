@@ -9,9 +9,12 @@ class Config {
         delayUpperBound: "",
         avoidKeyWords: [],//屏蔽词
         avoidGroups: [],//屏蔽群聊
+        listenKeyWords:[],//白名单词语
+        listenGroups:[],//白名单群聊
         useSelfNotice: true,//抢到红包后是否给自己发送消息
-        thanksMsg: "",//抢到红包之后的感谢消息
-        isActiveAllGroups:false//是否监听所有的群聊
+        thanksMsgs: [],//抢到红包之后的感谢消息
+        isActiveAllGroups:false,//是否监听所有的群聊
+        blockType:"0",//0不启用，1白名单2黑名单
     }
 
     static initConfig(pluginPath, configPath) {
