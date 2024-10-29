@@ -46,14 +46,29 @@
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div class="independent-key-div">
-                        <h2 style="margin-right: 25px">延迟下限</h2>
+                        <h2 style="margin-right: 25px">抢红包延迟下限</h2>
                         <input data-type="primary" id="gr-lower-bound-input"
                                class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                                type="text" placeholder="包含下限值">
                     </div>
                     <div class="independent-key-div">
-                        <h2 style="margin-right: 25px">延迟上限</h2>
+                        <h2 style="margin-right: 25px">抢红包延迟上限</h2>
                         <input data-type="primary" id="gr-upper-bound-input"
+                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                               type="text" placeholder="包含上限值">
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
+                    <div class="independent-key-div">
+                        <h2 style="margin-right: 25px">发回复延迟下限</h2>
+                        <input data-type="primary" id="gr-lower-bound-send-input"
+                               class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                               type="text" placeholder="包含下限值">
+                    </div>
+                    <div class="independent-key-div">
+                        <h2 style="margin-right: 25px">发回复延迟上限</h2>
+                        <input data-type="primary" id="gr-upper-bound-send-input"
                                class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                                type="text" placeholder="包含上限值">
                     </div>
@@ -80,8 +95,8 @@
                         <label>
                             <select id="gr-block-type-selector">
                                 <option value="0">不启用</option>
-                                <option value="Bangboo">白名单模式</option>
-                                <option value="Hilichurl">黑名单模式</option>
+                                <option value="1">白名单模式</option>
+                                <option value="2">黑名单模式</option>
                             </select>
                         </label>
                     </div>

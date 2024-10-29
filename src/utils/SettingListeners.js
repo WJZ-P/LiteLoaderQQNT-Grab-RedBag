@@ -70,6 +70,22 @@ export class SettingListeners {
         })
     }
 
+    async lowerBoundSendInputListener() {
+        const input = this.document.querySelector('#gr-lower-bound-send-input')
+        input.value = (await grAPI.getConfig()).delayLowerBoundForSend
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({delayLowerBoundForSend: event.target.value})
+        })
+    }
+
+    async upperBoundSendInputListener() {
+        const input = this.document.querySelector('#gr-upper-bound-send-input')
+        input.value = (await grAPI.getConfig()).delayUpperBoundForSend
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({delayUpperBoundForSend: event.target.value})
+        })
+    }
+
     async feedbackMsgButtonListener() {
         const button = this.document.querySelector('#gr-feedback-msg-button')
         if ((await grAPI.getConfig()).useSelfNotice) button.classList.toggle('is-active')
@@ -151,5 +167,7 @@ export class SettingListeners {
         this.blockTypeListener()
         this.keyGroupsInputListener()
         this.keyWordsInputListener()
+        this.lowerBoundSendInputListener()
+        this.upperBoundSendInputListener()
     }
 }

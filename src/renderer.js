@@ -118,16 +118,21 @@ async function grabRedBag(payload) {
         pluginLog("检测到屏蔽词或在屏蔽群内，不抢红包")
         return
     }
+    if (!(config.listenKeyWords.some(word => title.includes(word)) || config.listenGroups.includes(peerUid))) {
+        pluginLog("未检测到关键字或不在白名单内，不抢红包")
+    }
 
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
-
-    let randomDelay=0
+    let randomDelayForSend = 0;
     if (config.useRandomDelay) {
 
         const lowerBound = parseInt(config.delayLowerBound)
         const upperBound = parseInt(config.delayUpperBound)
-        randomDelay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+        const lowerBoundForSend = parseInt(config.delayLowerBoundForSend)
+        const upperBoundForSend = parseInt(config.delayUpperBoundForSend)
+        const randomDelay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+        randomDelayForSend = Math.floor(Math.random() * (upperBoundForSend - lowerBoundForSend + 1)) + lowerBoundForSend;
         pluginLog("等待随机时间" + randomDelay + "ms")
         await sleep(randomDelay)
     }
@@ -168,9 +173,8 @@ async function grabRedBag(payload) {
     }
 
     if (config.thanksMsgs.trim() !== "") {//给对方发送消息
-        if (config.useRandomDelay) await sleep(randomDelay)
-
-        pluginLog("准备给对方发送消息")
+        await sleep(randomDelayForSend)
+        pluginLog("准备给对方发送消息,随机延迟"+randomDelayForSend+"ms")
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
             "msgId": "0",
             "peer": {"chatType": chatType, "peerUid": peerUid, "guildId": ""},
@@ -178,7 +182,7 @@ async function grabRedBag(payload) {
                 "elementType": 1,
                 "elementId": "",
                 "textElement": {
-                    "content": config.thanksMsg,
+                    "content": config.thanksMsgs[Math.floor(Math.random() * config.thanksMsgs.length)],//随机选一条发
                     "atType": 0,
                     "atUid": "",
                     "atTinyId": "",
