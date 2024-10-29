@@ -113,14 +113,27 @@ async function grabRedBag(payload) {
     const title = wallEl.receiver.title
     const config = await grAPI.getConfig()
 
-    //先判断有没有屏蔽词或者是不是来自屏蔽群
-    if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid)) {
-        pluginLog("检测到屏蔽词或在屏蔽群内，不抢红包")
-        return
+    //先判断黑白名单的类型
+    switch (config.blockType) {
+        case "0" :
+            break;//说明未启用黑白名单
+
+        case "1": {//说明是白名单
+            if (!(config.listenKeyWords.some(word => title.includes(word)) || config.listenGroups.includes(peerUid))) {
+                pluginLog("未检测到关键字或不在白名单内，不抢红包")
+                return
+            }
+            break
+        }
+        case "2": {//说明是黑名单
+            if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid)) {
+                pluginLog("检测到屏蔽词或在屏蔽群内，不抢红包")
+                return
+            }
+            break
+        }
     }
-    if (!(config.listenKeyWords.some(word => title.includes(word)) || config.listenGroups.includes(peerUid))) {
-        pluginLog("未检测到关键字或不在白名单内，不抢红包")
-    }
+
 
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
@@ -172,9 +185,9 @@ async function grabRedBag(payload) {
         }, null)
     }
 
-    if (config.thanksMsgs.trim() !== "") {//给对方发送消息
+    if (config.thanksMsgs.length!==0) {//给对方发送消息
         await sleep(randomDelayForSend)
-        pluginLog("准备给对方发送消息,随机延迟"+randomDelayForSend+"ms")
+        pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
             "msgId": "0",
             "peer": {"chatType": chatType, "peerUid": peerUid, "guildId": ""},

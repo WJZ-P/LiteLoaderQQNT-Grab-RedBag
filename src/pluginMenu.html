@@ -58,7 +58,6 @@
                                type="text" placeholder="包含上限值">
                     </div>
                 </div>
-                <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div class="independent-key-div">
                         <h2 style="margin-right: 25px">发回复延迟下限</h2>
@@ -79,7 +78,7 @@
                         <h2>启用感谢消息</h2>
                         <span class="secondary-text">抢到红包后给对方发送感谢消息,多条随机发送请用英文逗号隔开</span>
                     </div>
-                    <input data-type="primary" id="gr-thanks-msg-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-thanks-msg-input" style="width: 35%"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空不发送，支持随机消息">
                 </div>
@@ -91,7 +90,7 @@
                             <span class="secondary-text">白名单只接受指定群红包，黑名单则屏蔽对应群的红包</span>
                         </div>
                     </div>
-                    <div>
+                    <div style="width: 35%">
                         <label>
                             <select id="gr-block-type-selector">
                                 <option value="0">不启用</option>
@@ -104,38 +103,38 @@
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div>
-                        <h2>识别关键字</h2>
+                        <h2>白名单关键字</h2>
                         <span class="secondary-text">用英文逗号隔开，红包名含关键字才会抢红包</span>
                     </div>
-                    <input data-type="primary" id="gr-key-words-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-key-words-input" style="width: 35%"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
                 <div class="vertical-list-item">
                     <div>
-                        <h2>监听群聊</h2>
+                        <h2>白名单群聊</h2>
                         <span class="secondary-text">用英文逗号隔开，红包来自对应群聊才会抢红包，写群号</span>
                     </div>
-                    <input data-type="primary" id="gr-key-groups-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-key-groups-input" style="width: 35%"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div>
-                        <h2>屏蔽关键字</h2>
+                        <h2>黑名单关键字</h2>
                         <span class="secondary-text">用英文逗号隔开，红包名含关键字则不抢红包</span>
                     </div>
-                    <input data-type="primary" id="gr-avoid-words-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-avoid-words-input" style="width: 35%"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
                 <div class="vertical-list-item">
                     <div>
-                        <h2>屏蔽群聊</h2>
+                        <h2>黑名单群聊</h2>
                         <span class="secondary-text">用英文逗号隔开，红包来自对应群聊则不抢红包，写群号</span>
                     </div>
-                    <input data-type="primary" id="gr-avoid-groups-input" style="width: fit-content"
+                    <input data-type="primary" id="gr-avoid-groups-input" style="width: 35%"
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
@@ -148,6 +147,10 @@
         <h1>插件说明</h1>
         <div class="wrap">
             <div class="list">
+                <div class="vertical-list-item" style="display: flex; flex-direction: column">
+                    写名单不要有多余空格，会影响判断。
+                </div>
+                <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item" style="display: flex; flex-direction: column">
                     本插件仅供学习参考，任何问题概不负责。
                 </div>
