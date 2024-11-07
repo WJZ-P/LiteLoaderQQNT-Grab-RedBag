@@ -85,7 +85,9 @@ async function onHashUpdate() {
 
 async function grabRedBag(payload) {
     // pluginLog("下面是onRecvActiveMsg的payload")
-    //console.log(payload)
+    // if (payload.msgList[0].peerName === "")
+    //     console.log(payload)
+
     let wallEl = null
     for (const msgElement of payload.msgList[0].elements) {
         if (msgElement.elementType === 9) {//说明是红包消息！
@@ -169,41 +171,41 @@ async function grabRedBag(payload) {
         pluginLog("准备给自己发送消息")
         if (result.grabRedBagRsp.recvdOrder.amount === "0")
             await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
-            "msgId": "0",
-            "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
-            "msgElements": [{
-                "elementType": 1,
-                "elementId": "",
-                "textElement": {
-                    "content": `[Grab RedBag]抢来自"${peerName}":${peerUid}的红包时失败！红包已被领完！`,
-                    "atType": 0,
-                    "atUid": "",
-                    "atTinyId": "",
-                    "atNtUid": ""
-                }
-            }],
-            "msgAttributeInfos": new Map()
-        }, null)
+                "msgId": "0",
+                "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
+                "msgElements": [{
+                    "elementType": 1,
+                    "elementId": "",
+                    "textElement": {
+                        "content": `[Grab RedBag]抢来自"${peerName}":${peerUid}的红包时失败！红包已被领完！`,
+                        "atType": 0,
+                        "atUid": "",
+                        "atTinyId": "",
+                        "atNtUid": ""
+                    }
+                }],
+                "msgAttributeInfos": new Map()
+            }, null)
         else
-        await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
-            "msgId": "0",
-            "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
-            "msgElements": [{
-                "elementType": 1,
-                "elementId": "",
-                "textElement": {
-                    "content": `[Grab RedBag]收到来自"${peerName}":${peerUid}的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
-                    "atType": 0,
-                    "atUid": "",
-                    "atTinyId": "",
-                    "atNtUid": ""
-                }
-            }],
-            "msgAttributeInfos": new Map()
-        }, null)
+            await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+                "msgId": "0",
+                "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
+                "msgElements": [{
+                    "elementType": 1,
+                    "elementId": "",
+                    "textElement": {
+                        "content": `[Grab RedBag]收到来自"${peerName}":${peerUid}的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
+                        "atType": 0,
+                        "atUid": "",
+                        "atTinyId": "",
+                        "atNtUid": ""
+                    }
+                }],
+                "msgAttributeInfos": new Map()
+            }, null)
     }
 
-    if (config.thanksMsgs.length !== 0) {//给对方发送消息
+    if (config.thanksMsgs.length !== 0 && result.grabRedBagRsp.recvdOrder.amount !== "0") {//给对方发送消息
         await sleep(randomDelayForSend)
         pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
