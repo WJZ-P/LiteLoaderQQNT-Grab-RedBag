@@ -9,7 +9,7 @@
     "thumb": "./src/assests/savings.svg",
     "authors": [{
         "name": "WJZ_P",
-        "link": "https://github.com/WJZ_P"
+        "link": "https://github.com/WJZ-P"
     }],
     "platform": ["win32", "linux", "darwin"],
     "injects": {
@@ -18,7 +18,7 @@
         "preload": "./src/preload.js"
     },
   "repository": {
-    "repo": "WJZ-P/LiteLoaderQQNT-Encrypt-Chat",
+    "repo": "WJZ-P/LiteLoaderQQNT-Grab-RedBag",
     "branch": "main",
     "release": {
       "tag": "v1.2.1",

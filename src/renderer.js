@@ -165,7 +165,8 @@ async function grabRedBag(payload) {
             "index": index
         }
     }, {"timeout": 5000})
-    pluginLog("抢红包结果为" + JSON.stringify(result, null, 4))
+    pluginLog("抢红包结果为")
+    console.log(result)
 
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
