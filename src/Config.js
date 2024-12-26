@@ -4,6 +4,7 @@ const {pluginLog} = require("./utils/logUtils")
 class Config {
     static config = {
         isActive: true,//是否开启抢红包功能
+        notificationonly: false,//是否仅通知
         useRandomDelay: false,//是否启用随机延迟
         delayLowerBound: "",
         delayUpperBound: "",
