@@ -37,8 +37,8 @@ export async function grabRedBag(payload) {
     const title = wallEl.receiver.title
     const redChannel = wallEl.redChannel
     const config = await grAPI.getConfig()
-    const IsGroup = config.Send2Who.length === 0 ? 1 : (config.Send2Who[0] === "1" ? 8 : 2)
-    const receiver = config.Send2Who.length === 0 || config.Send2Who[0] === "1" ? authData.uid : config.Send2Who[0]
+    const IsGroup = config.Send2Who.length === 0 ? 1 : (config.Send2Who[0] === "1" ? 8 : 2);
+    const receiver = config.Send2Who.length === 0 || config.Send2Who[0] === "1" ? authData.uid : config.Send2Who[0];
 
 
     //先判断黑白名单的类型
@@ -62,6 +62,26 @@ export async function grabRedBag(payload) {
         }
     }
 
+    if (config.notificationonly) {
+        pluginLog("检测到已开启仅通知模式")
+        await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+            "msgId": "0",
+            "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
+            "msgElements": [{
+                "elementType": 1,
+                "elementId": "",
+                "textElement": {
+                    "content": `[Grab RedBag]发现来自"${peerName}(${peerUid})":${sendUin}发送的红包！`,
+                    "atType": 0,
+                    "atUid": "",
+                    "atTinyId": "",
+                    "atNtUid": ""
+                }
+            }],
+            "msgAttributeInfos": new Map()
+        }, null)
+        return
+    }
 
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
@@ -121,6 +141,9 @@ export async function grabRedBag(payload) {
 
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
+        pluginLog("receiver:" + receiver)
+        pluginLog("IsGroup:" + IsGroup)
+        pluginLog("peerUid:" + peerUid)
         if (result.grabRedBagRsp.recvdOrder.amount === "0")
             await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
@@ -129,7 +152,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]抢来自"${peerName}(${peerUid})":${sendUin}的红包时失败！红包已被领完！`,
+                        "content": `[Grab RedBag]抢来自"${peerName}(${peerUid})":${sendUin}发送的红包时失败！红包已被领完！`,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
@@ -146,7 +169,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]收到来自"${peerName}(${peerUid})":${sendUin}的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
+                        "content": `[Grab RedBag]收到来自"${peerName}(${peerUid})":${sendUin}发送的的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
