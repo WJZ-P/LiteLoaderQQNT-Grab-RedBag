@@ -130,6 +130,14 @@ export class SettingListeners {
         })
     }
 
+    async QQNumberInputListener() {
+        const input = this.document.querySelector('#gr-Send2Who-input')
+        input.value = (await grAPI.getConfig()).Send2Who.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({Send2Who: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
     async keyGroupsInputListener() {
         const input = this.document.querySelector('#gr-key-groups-input')
         input.value = (await grAPI.getConfig()).listenGroups.join(",")
@@ -167,6 +175,7 @@ export class SettingListeners {
         this.blockTypeListener()
         this.keyGroupsInputListener()
         this.keyWordsInputListener()
+        this.QQNumberInputListener()
         this.lowerBoundSendInputListener()
         this.upperBoundSendInputListener()
     }
