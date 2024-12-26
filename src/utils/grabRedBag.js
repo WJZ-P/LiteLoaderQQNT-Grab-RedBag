@@ -28,6 +28,7 @@ export async function grabRedBag(payload) {
     const recvUin = authData.uin//自己的QQ号
     const peerUid = payload.msgList[0].peerUid//发红包的对象的peerUid
     const name = authData.nickName//应该是自己的名字
+    const sendUin = payload.msgList[0].senderUin//发送红包的QQ号
     const pcBody = wallEl.pcBody
     const wishing = wallEl.receiver.title
     const index = wallEl.stringIndex
@@ -125,7 +126,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]抢来自"${peerName}":${peerUid}的红包时失败！红包已被领完！`,
+                        "content": `[Grab RedBag]抢来自"${peerName}(${peerUid})":${sendUin}的红包时失败！红包已被领完！`,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
@@ -142,7 +143,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]收到来自"${peerName}":${peerUid}的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
+                        "content": `[Grab RedBag]收到来自"${peerName}(${peerUid})":${sendUin}的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
@@ -153,7 +154,7 @@ export async function grabRedBag(payload) {
             }, null)
     }
 
-    if (config.thanksMsgs.length !== 0 && result.grabRedBagRsp.recvdOrder.amount !== "0") {//给对方发送消息
+    if (config.thanksMsgs.length !== 0 && result.grabRedBagRsp.recvdOrder.amount !== "0" && sendUin !== recvUin) {//给对方发送消息
         await sleep(randomDelayForSend)
         pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
         await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
