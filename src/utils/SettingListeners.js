@@ -42,6 +42,18 @@ export class SettingListeners {
         })
     }
 
+    async NotificationOnlyButtonListener() {
+        const button = this.document.querySelector('#gr-notification-only-button')
+        if ((await grAPI.getConfig()).notificationonly) button.classList.toggle('is-active')
+
+        button.addEventListener('click', async () => {
+            const notificationonly = (await grAPI.getConfig()).notificationonly
+            button.classList.toggle('is-active')
+            //修改状态
+            await grAPI.setConfig({notificationonly: !notificationonly})
+        })
+    }
+
     async randomDelayButtonListener() {
         const delayButton = this.document.querySelector('#gr-random-delay-button')
         if ((await grAPI.getConfig()).useRandomDelay) delayButton.classList.toggle('is-active')
@@ -178,5 +190,6 @@ export class SettingListeners {
         this.QQNumberInputListener()
         this.lowerBoundSendInputListener()
         this.upperBoundSendInputListener()
+        this.NotificationOnlyButtonListener()
     }
 }
