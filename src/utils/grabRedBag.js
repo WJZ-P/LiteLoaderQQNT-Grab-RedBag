@@ -37,6 +37,8 @@ export async function grabRedBag(payload) {
     const title = wallEl.receiver.title
     const redChannel = wallEl.redChannel
     const config = await grAPI.getConfig()
+    const receiver = (!config.Send2Who || config.Send2Who.length === 0) ? authData.uid : config.Send2Who[0];
+    const IsGroup = (!config.Send2Who || config.Send2Who.length === 0) ? 1 : 2;
 
     //先判断黑白名单的类型
     switch (config.blockType) {
@@ -118,10 +120,13 @@ export async function grabRedBag(payload) {
 
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
+        pluginLog("receiver:" + receiver)
+        pluginLog("IsGroup:" + IsGroup)
+        pluginLog("peerUid:" + peerUid)
         if (result.grabRedBagRsp.recvdOrder.amount === "0")
             await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
-                "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
+                "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
                 "msgElements": [{
                     "elementType": 1,
                     "elementId": "",
@@ -138,7 +143,7 @@ export async function grabRedBag(payload) {
         else
             await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
-                "peer": {"chatType": 1, "peerUid": authData.uid, "guildId": ""},
+                "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
                 "msgElements": [{
                     "elementType": 1,
                     "elementId": "",
