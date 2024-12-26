@@ -37,8 +37,9 @@ export async function grabRedBag(payload) {
     const title = wallEl.receiver.title
     const redChannel = wallEl.redChannel
     const config = await grAPI.getConfig()
-    const receiver = (!config.Send2Who || config.Send2Who.length === 0) ? authData.uid : config.Send2Who[0];
-    const IsGroup = (!config.Send2Who || config.Send2Who.length === 0) ? 1 : 2;
+    const IsGroup = config.Send2Who.length === 0 ? 1 : (config.Send2Who[0] === "1" ? 8 : 2)
+    const receiver = config.Send2Who.length === 0 || config.Send2Who[0] === "1" ? authData.uid : config.Send2Who[0]
+
 
     //先判断黑白名单的类型
     switch (config.blockType) {
