@@ -120,9 +120,6 @@ export async function grabRedBag(payload) {
 
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
-        pluginLog("receiver:" + receiver)
-        pluginLog("IsGroup:" + IsGroup)
-        pluginLog("peerUid:" + peerUid)
         if (result.grabRedBagRsp.recvdOrder.amount === "0")
             await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
