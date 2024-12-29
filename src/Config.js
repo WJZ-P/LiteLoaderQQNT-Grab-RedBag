@@ -13,8 +13,10 @@ class Config {
         delayUpperBoundForSend: "",
         avoidKeyWords: [],//屏蔽词
         avoidGroups: [],//屏蔽群聊
+        avoidQQs: [],//屏蔽QQ
         listenKeyWords: [],//白名单词语
         listenGroups: [],//白名单群聊
+        listenQQs: [],//白名单QQ
         Send2Who: [],//回馈QQ群号
         useSelfNotice: true,//抢到红包后是否给自己发送消息
         thanksMsgs: [],//抢到红包之后的感谢消息
