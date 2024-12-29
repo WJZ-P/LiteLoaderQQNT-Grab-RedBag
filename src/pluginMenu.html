@@ -139,6 +139,15 @@
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>白名单QQ号</h2>
+                        <span class="secondary-text">用英文逗号隔开，红包来自对应QQ号才会抢红包</span>
+                    </div>
+                    <input data-type="primary" id="gr-key-QQs-input" style="width: 35%"
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认抢所有红包">
+                </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
                     <div>
@@ -158,6 +167,16 @@
                            class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
                            type="text" placeholder="留空则默认抢所有红包">
                 </div>
+                <div class="vertical-list-item">
+                    <div>
+                        <h2>黑名单QQ号</h2>
+                        <span class="secondary-text">用英文逗号隔开，红包来自对应QQ号则不抢红包</span>
+                    </div>
+                    <input data-type="primary" id="gr-avoid-QQs-input" style="width: 35%"
+                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
+                           type="text" placeholder="留空则默认抢所有红包">
+                </div>
+                <hr class="horizontal-dividing-line"/>
             </div>
         </div>
     </section>
@@ -168,14 +187,14 @@
         <div class="wrap">
             <div class="list">
                 <div class="vertical-list-item" style="display: flex; flex-direction: column">
-                    写黑白名单时群号和关键字不要有多余空格，会影响判断。
+                    写黑白名单时群号和关键字不要有多余空格，多个请用半角逗号（英文逗号）","隔开，否则会影响判断。
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item" style="display: flex; flex-direction: column">
                     本插件仅供学习参考，任何问题概不负责。
                 </div>
                 <hr class="horizontal-dividing-line"/>
-                <div class="vertical-list-item">
+                <div class="vertical-list-item" style="display: flex;flex-direction: column;">
                     <h1>项目地址https://github.com/WJZ-P/LiteLoaderQQNT-Grab-RedBag</h1>
                 </div>
                 <hr class="horizontal-dividing-line"/>
