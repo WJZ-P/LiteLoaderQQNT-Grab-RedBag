@@ -29,6 +29,7 @@ export async function grabRedBag(payload) {
     const peerUid = payload.msgList[0].peerUid//发红包的对象的peerUid
     const name = authData.nickName//应该是自己的名字
     const sendUin = payload.msgList[0].senderUin//发送红包的QQ号
+    const senderName = payload.msgList[0].sendRemarkName || payload.msgList[0].sendMemberName || payload.msgList[0].sendNickName;//发送者的名字
     const pcBody = wallEl.pcBody
     const wishing = wallEl.receiver.title
     const index = wallEl.stringIndex
@@ -47,20 +48,23 @@ export async function grabRedBag(payload) {
             break;//说明未启用黑白名单
 
         case "1": {//说明是白名单
-            if (!(config.listenKeyWords.some(word => title.includes(word)) || config.listenGroups.includes(peerUid))) {
-                pluginLog("未检测到关键字或不在白名单内，不抢红包")
+            if (!((config.listenKeyWords.length === 0 || config.listenKeyWords.some(word => title.includes(word))) && (config.listenGroups.length === 0 || config.listenGroups.includes(peerUid)) && (config.listenQQs.length === 0 || config.listenQQs.includes(sendUin)))) {
+                pluginLog("未同时满足关键字、白名单群和发送者条件，不抢红包")
                 return
             }
             break
         }
         case "2": {//说明是黑名单
-            if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid)) {
-                pluginLog("检测到屏蔽词或在屏蔽群内，不抢红包")
+            if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid) || config.listenQQs.includes(sendUin)) {
+                pluginLog("检测到黑名单关键字、在黑名单群内或发送者在黑名单内，不抢红包")
                 return
             }
             break
         }
     }
+
+
+
 
     if (config.notificationonly) {
         pluginLog("检测到已开启仅通知模式")
@@ -71,7 +75,7 @@ export async function grabRedBag(payload) {
                 "elementType": 1,
                 "elementId": "",
                 "textElement": {
-                    "content": `[Grab RedBag]发现来自"${peerName}(${peerUid})":${sendUin}发送的红包！`,
+                    "content": `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包！`,
                     "atType": 0,
                     "atUid": "",
                     "atTinyId": "",
@@ -149,7 +153,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]抢来自"${peerName}(${peerUid})":${sendUin}发送的红包时失败！红包已被领完！`,
+                        "content": `[Grab RedBag]抢来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包时失败！红包已被领完！`,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
@@ -166,7 +170,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]收到来自"${peerName}(${peerUid})":${sendUin}发送的的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
+                        "content": `[Grab RedBag]收到来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
