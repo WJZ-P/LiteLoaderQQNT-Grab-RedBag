@@ -158,6 +158,22 @@ export class SettingListeners {
         })
     }
 
+    async keyQQsInputListener() {
+        const input = this.document.querySelector('#gr-key-QQs-input')
+        input.value = (await grAPI.getConfig()).listenQQs.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({listenQQs: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
+    async avoidQQsInputListener() {
+        const input = this.document.querySelector('#gr-avoid-QQs-input')
+        input.value = (await grAPI.getConfig()).avoidQQs.join(",")
+        input.addEventListener('change', async event => {
+            await grAPI.setConfig({avoidQQs: event.target.value.split(',').filter(item => item.trim() !== "")})
+        })
+    }
+
     //监听黑、白名单模式切换
     async blockTypeListener() {
         let blockType = undefined
@@ -183,10 +199,12 @@ export class SettingListeners {
         this.thanksMsgsInputListener()
         this.avoidWordsInputListener()
         this.avoidGroupsInputListener()
+        this.avoidQQsInputListener()
         this.activeAllGroupsButtonListener()
         this.blockTypeListener()
         this.keyGroupsInputListener()
         this.keyWordsInputListener()
+        this.keyQQsInputListener()
         this.QQNumberInputListener()
         this.lowerBoundSendInputListener()
         this.upperBoundSendInputListener()
