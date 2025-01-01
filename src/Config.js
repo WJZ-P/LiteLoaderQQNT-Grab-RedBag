@@ -19,9 +19,12 @@ class Config {
         listenQQs: [],//白名单QQ
         Send2Who: [],//回馈QQ群号
         useSelfNotice: true,//抢到红包后是否给自己发送消息
+        // isSendToPhone: false,//抢红包后是否发送到手机
         thanksMsgs: [],//抢到红包之后的感谢消息
         isActiveAllGroups: false,//是否监听所有的群聊
         blockType: "0",//0不启用，1白名单2黑名单
+        totalRedBagNum:0,//总共抢到的红包数量
+        totalAmount:0,//总共抢到的金额
     }
 
     static initConfig(pluginPath, configPath) {

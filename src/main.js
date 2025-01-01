@@ -28,7 +28,7 @@ module.exports.onBrowserWindowCreated = window => {
     });
 
     window.webContents.on("did-stop-loading", async () => {
-        if (window.id === 2 && chatWindows.length===0) {//只改QQ主窗口就行了
+        if (window.id === 2 && chatWindows.length === 0) {//只改QQ主窗口就行了
             chatWindows.push(window)
             //pluginLog(JSON.stringify(config))
 
@@ -66,6 +66,12 @@ function onLoad() {
         pluginLog('主进程准备处理sendMsgToChatWindows')
         pluginLog(_, message, args)
         sendMsgToChatWindows(message, args)
+    })
+    ipcMain.handle("LiteLoader.grab_redbag.addTotalRedBagNum", (_, num) => {
+        Config.setConfig({totalRedBagNum: config.totalRedBagNum + num})
+    })
+    ipcMain.handle("LiteLoader.grab_redbag.addTotalAmount", (_, amount) => {
+        Config.setConfig({totalAmount:config.totalAmount+amount})
     })
 
     //设置配置

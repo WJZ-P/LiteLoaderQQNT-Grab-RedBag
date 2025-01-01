@@ -189,6 +189,15 @@ export class SettingListeners {
         })
     }
 
+    //显示统计信息
+    async showHistoryInfo(){
+        const textNum=this.document.querySelector("#info-redbag-num")
+        const textAmount=this.document.querySelector("#info-money-amount")
+        const config=await grAPI.getConfig()
+        textNum.innerText=config.totalRedBagNum
+        textAmount.innerText=config.totalAmount
+    }
+
 
     async onLoad() {
         this.activeButtonListener()
@@ -209,5 +218,6 @@ export class SettingListeners {
         this.lowerBoundSendInputListener()
         this.upperBoundSendInputListener()
         this.NotificationOnlyButtonListener()
+        this.showHistoryInfo()
     }
 }

@@ -15,7 +15,8 @@ contextBridge.exposeInMainWorld("grab_redbag", {
     subscribeEvent: (cmdName, handler) => subscribeEvent(cmdName, handler),
     unsubscribeEvent: (handler) => unsubscribeEvent(handler),
     addEventListener: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args)),
-
+    addTotalRedBagNum:(num)=>ipcRenderer.invoke("LiteLoader.grab_redbag.addTotalRedBagNum",num),
+    addTotalAmount:(amount)=>ipcRenderer.invoke("LiteLoader.grab_redbag.addTotalAmount",amount),
     //发送消息到所有聊天窗口
     sendMsgToChatWindows: (message, arg) => {
         //console.log(message,arg)

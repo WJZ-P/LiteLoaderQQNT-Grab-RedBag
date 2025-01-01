@@ -1,6 +1,6 @@
 import {pluginLog} from "./frontLogUtils.js";
 
-const grAPI = window.grab_redbag
+const pluginAPI = window.grab_redbag
 const grabedArray = []
 
 export async function grabRedBag(payload) {
@@ -37,7 +37,7 @@ export async function grabRedBag(payload) {
     const peerName = payload.msgList[0].peerName//群聊名字
     const title = wallEl.receiver.title
     const redChannel = wallEl.redChannel
-    const config = await grAPI.getConfig()
+    const config = await pluginAPI.getConfig()
     const IsGroup = config.Send2Who.length === 0 ? 1 : (config.Send2Who[0] === "1" ? 8 : 2);
     const receiver = config.Send2Who.length === 0 || config.Send2Who[0] === "1" ? authData.uid : config.Send2Who[0];
 
@@ -68,7 +68,7 @@ export async function grabRedBag(payload) {
 
     if (config.notificationonly) {
         pluginLog("检测到已开启仅通知模式")
-        await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+        await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
             "msgId": "0",
             "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
             "msgElements": [{
@@ -104,7 +104,7 @@ export async function grabRedBag(payload) {
 
     if (redChannel === 32) {
         //说明是口令红包，要输出口令
-        await grAPI.invokeNative('ns-ntApi', 'nodeIKernelMsgService/sendMsg', false, {
+        await pluginAPI.invokeNative('ns-ntApi', 'nodeIKernelMsgService/sendMsg', false, {
             "msgId": "0",
             "peer": {
                 "chatType": chatType,
@@ -128,7 +128,7 @@ export async function grabRedBag(payload) {
         })
     }
 
-    const result = await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
+    const result = await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
         "grabRedBagReq": {
             "recvUin": chatType === 1 ? recvUin : peerUid,//私聊的话是自己Q号，群聊就是peerUid
             "recvType": chatType,
@@ -147,7 +147,7 @@ export async function grabRedBag(payload) {
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
         if (result.grabRedBagRsp.recvdOrder.amount === "0")
-            await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+            await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
                 "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
                 "msgElements": [{
@@ -164,7 +164,7 @@ export async function grabRedBag(payload) {
                 "msgAttributeInfos": new Map()
             }, null)
         else
-            await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+            await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
                 "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
                 "msgElements": [{
@@ -182,11 +182,14 @@ export async function grabRedBag(payload) {
             }, null)
     }
 
+    //下面进行抢到红包的后续处理。没抢到则直接返回。
+    if(result.grabRedBagRsp.recvdOrder.amount === "0") return
+
     //下面给对方发送消息
-    if (config.thanksMsgs.length !== 0 && result.grabRedBagRsp.recvdOrder.amount !== "0" && sendUin !== recvUin) {//给对方发送消息
+    if (config.thanksMsgs.length !== 0 && sendUin !== recvUin) {//给对方发送消息
         await sleep(randomDelayForSend)
         pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
-        await grAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
+        await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
             "msgId": "0",
             "peer": {"chatType": chatType, "peerUid": peerUid, "guildId": ""},
             "msgElements": [{
@@ -205,7 +208,8 @@ export async function grabRedBag(payload) {
     }
 
     //抢完红包之后，记录下当前已抢的红包数量和总额
-
+    pluginAPI.addTotalRedBagNum(1);
+    pluginAPI.addTotalAmount(parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100);
 }
 
 async function sleep(ms) {
