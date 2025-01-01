@@ -143,6 +143,7 @@ export async function grabRedBag(payload) {
     pluginLog("抢红包结果为")
     console.log(result)
 
+    //下面给自己发送提示消息
     if (config.useSelfNotice) {
         pluginLog("准备给自己发送消息")
         if (result.grabRedBagRsp.recvdOrder.amount === "0")
@@ -181,6 +182,7 @@ export async function grabRedBag(payload) {
             }, null)
     }
 
+    //下面给对方发送消息
     if (config.thanksMsgs.length !== 0 && result.grabRedBagRsp.recvdOrder.amount !== "0" && sendUin !== recvUin) {//给对方发送消息
         await sleep(randomDelayForSend)
         pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
@@ -201,6 +203,9 @@ export async function grabRedBag(payload) {
             "msgAttributeInfos": new Map()
         }, null)
     }
+
+    //抢完红包之后，记录下当前已抢的红包数量和总额
+
 }
 
 async function sleep(ms) {
