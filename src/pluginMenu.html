@@ -65,6 +65,25 @@
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
+                    <div>
+                        <h2>禁用抢红包时段</h2>
+                        <span class="secondary-text">在该区间内不会自动抢红包，常用于凌晨。</span>
+                    </div>
+
+                    <div style="width: 35%;display: flex;justify-content: space-around;margin-right: -30px">
+                        <!-- 开始时间选择 -->
+                        <input type="time" id="startTime" style="font-size: 18px"/>
+                        <p>&nbsp;|&nbsp;&nbsp;&nbsp;</p>
+                        <!-- 结束时间选择 -->
+                        <input type="time" id="endTime" style="font-size: 18px"/>
+                    </div>
+
+                    <div id="gr-random-delay-button" class="q-switch">
+                        <span class="q-switch__handle"></span>
+                    </div>
+                </div>
+                <hr class="horizontal-dividing-line"/>
+                <div class="vertical-list-item">
                     <div class="independent-key-div">
                         <h2 style="margin-right: 25px">抢红包延迟下限</h2>
                         <input data-type="primary" id="gr-lower-bound-input"

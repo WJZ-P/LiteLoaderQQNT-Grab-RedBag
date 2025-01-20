@@ -25,6 +25,8 @@ class Config {
         blockType: "0",//0不启用，1白名单2黑名单
         totalRedBagNum:0,//总共抢到的红包数量
         totalAmount:0,//总共抢到的金额
+        stopGrabStartTime:"00:00",//暂停抢红包的开始时间
+        stopGrabEndTime:"00:00",//暂停抢红包的结束时间
     }
 
     static initConfig(pluginPath, configPath) {
