@@ -190,12 +190,46 @@ export class SettingListeners {
     }
 
     //显示统计信息
-    async showHistoryInfo(){
-        const textNum=this.document.querySelector("#info-redbag-num")
-        const textAmount=this.document.querySelector("#info-money-amount")
-        const config=await grAPI.getConfig()
-        textNum.innerText=config.totalRedBagNum
-        textAmount.innerText=config.totalAmount
+    async showHistoryInfo() {
+        const textNum = this.document.querySelector("#info-redbag-num")
+        const textAmount = this.document.querySelector("#info-money-amount")
+        const config = await grAPI.getConfig()
+        textNum.innerText = config.totalRedBagNum
+        textAmount.innerText = config.totalAmount
+    }
+
+    //根据时间停止抢红包按钮
+    async StopGrabByTimeButtonListener() {
+        const button = this.document.querySelector('#stop-grab-by-time-button')
+        if ((await grAPI.getConfig()).stopGrabByTime) button.classList.toggle('is-active')
+
+        button.addEventListener('click', async () => {
+            const stopGrabByTime = (await grAPI.getConfig()).stopGrabByTime
+            button.classList.toggle('is-active')
+            //修改状态
+            await grAPI.setConfig({stopGrabByTime: !stopGrabByTime})
+        })
+    }
+
+    //开始时间控制
+    async startTimeInputListener() {
+        const startTimeInput = this.document.querySelector('#startTime')
+        const Config = await grAPI.getConfig()
+        startTimeInput.value = Config.stopGrabStartTime
+
+        startTimeInput.addEventListener('change', event => {
+            grAPI.setConfig({stopGrabStartTime: event.target.value})
+        })
+    }
+
+    async endTimeInputListener() {
+        const endTimeInput = this.document.querySelector('#endTime')
+        const Config = await grAPI.getConfig()
+        endTimeInput.value = Config.stopGrabEndTime
+
+        endTimeInput.addEventListener('change', event => {
+            grAPI.setConfig({stopGrabEndTime: event.target.value})
+        })
     }
 
 
@@ -219,5 +253,8 @@ export class SettingListeners {
         this.upperBoundSendInputListener()
         this.NotificationOnlyButtonListener()
         this.showHistoryInfo()
+        this.StopGrabByTimeButtonListener()
+        this.startTimeInputListener()
+        this.endTimeInputListener()
     }
 }

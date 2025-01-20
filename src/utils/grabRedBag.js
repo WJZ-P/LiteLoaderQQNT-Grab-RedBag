@@ -87,6 +87,12 @@ export async function grabRedBag(payload) {
         return
     }
 
+    //还要检测是否开启特定时段禁止抢红包功能。
+    if(config.stopGrabByTime){
+        //检测时间段
+        if(isCurrentTimeInRange(config.stopGrabStartTime,config.stopGrabEndTime)) return
+    }
+
     //下面准备发送收红包消息
     pluginLog("准备抢红包")
     let randomDelayForSend = 0;
@@ -214,4 +220,30 @@ export async function grabRedBag(payload) {
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(() => resolve(), ms))
+}
+
+function isCurrentTimeInRange(startTimeStr, endTimeStr) {
+    // 获取当前时间
+    const now = new Date();
+    const currentHours = now.getHours();
+    const currentMinutes = now.getMinutes();
+
+    // 将当前时间转换为分钟
+    const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+    // 将开始和结束时间转换为分钟
+    const [startHours, startMinutes] = startTimeStr.split(':').map(Number);
+    const [endHours, endMinutes] = endTimeStr.split(':').map(Number);
+
+    const startTimeInMinutes = startHours * 60 + startMinutes;
+    const endTimeInMinutes = endHours * 60 + endMinutes;
+
+    // 处理跨午夜的情况
+    if (startTimeInMinutes < endTimeInMinutes) {
+        // 时间段不跨越午夜
+        return currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes < endTimeInMinutes;
+    } else {
+        // 时间段跨越午夜
+        return currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes < endTimeInMinutes;
+    }
 }
