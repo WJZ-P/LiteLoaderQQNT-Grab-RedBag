@@ -3,7 +3,7 @@ import {pluginLog} from "./frontLogUtils.js";
 const pluginAPI = window.grab_redbag
 const grabedArray = []
 let antiDetectGroups = []//暂时停止监听的群。
-const antiDetectTime = 300//默认暂停五分钟
+const antiDetectTime = 300000//默认暂停五分钟
 
 export async function grabRedBag(payload) {
     // pluginLog("下面是onRecvActiveMsg的payload")
