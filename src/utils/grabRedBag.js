@@ -55,7 +55,7 @@ export async function grabRedBag(payload) {
             break
         }
         case "2": {//说明是黑名单
-            if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid) || config.listenQQs.includes(sendUin)) {
+            if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid) || config.avoidQQs.includes(sendUin)) {
                 pluginLog("检测到黑名单关键字、在黑名单群内或发送者在黑名单内，不抢红包")
                 return
             }
