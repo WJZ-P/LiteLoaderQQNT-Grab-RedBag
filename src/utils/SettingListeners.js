@@ -195,7 +195,7 @@ export class SettingListeners {
         const textAmount = this.document.querySelector("#info-money-amount")
         const config = await grAPI.getConfig()
         textNum.innerText = config.totalRedBagNum
-        textAmount.innerText = config.totalAmount
+        textAmount.innerText = config.totalAmount.toFixed(2)
     }
 
     //根据时间停止抢红包按钮
@@ -231,7 +231,16 @@ export class SettingListeners {
             grAPI.setConfig({stopGrabEndTime: event.target.value})
         })
     }
+    //监听自定义收取红包消息.
+    async receiveMsgListener(){
+        const input=this.document.querySelector("#gr-receive-msg-input")
+        const Config = await grAPI.getConfig()
+        input.value = Config.receiveMsg
 
+        input.addEventListener('change',event=>{
+            grAPI.setConfig({receiveMsg: event.target.value})
+        })
+    }
 
     async onLoad() {
         this.activeButtonListener()
@@ -256,5 +265,6 @@ export class SettingListeners {
         this.StopGrabByTimeButtonListener()
         this.startTimeInputListener()
         this.endTimeInputListener()
+        this.receiveMsgListener()
     }
 }

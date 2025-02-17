@@ -169,7 +169,18 @@ export async function grabRedBag(payload) {
                 }],
                 "msgAttributeInfos": new Map()
             }, null)
-        else
+        else{
+            //这里先准备好需要用到的数据
+            //peerName群名、peerUid群号、senderName发红包的人名、sendUin发红包的人的Q号
+            let amount=parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100
+
+            //定义需要发送的消息
+            const msg=config.receiveMsg.replace("%peerName%",peerName)
+                .replace("%peerUid%",peerUid)
+                .replace("%senderName%",senderName)
+                .replace("%sendUin%",sendUin)
+                .replace("%amount%",amount.toFixed(2))
+
             await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
                 "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
@@ -177,7 +188,7 @@ export async function grabRedBag(payload) {
                     "elementType": 1,
                     "elementId": "",
                     "textElement": {
-                        "content": `[Grab RedBag]收到来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的的红包${parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100}元`,
+                        "content": msg,
                         "atType": 0,
                         "atUid": "",
                         "atTinyId": "",
@@ -185,7 +196,7 @@ export async function grabRedBag(payload) {
                     }
                 }],
                 "msgAttributeInfos": new Map()
-            }, null)
+            }, null)}
     }
 
     //下面进行抢到红包的后续处理。没抢到则直接返回。

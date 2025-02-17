@@ -28,6 +28,7 @@ class Config {
         stopGrabByTime:false,//根据时间停止抢红包
         stopGrabStartTime:"00:00",//暂停抢红包的开始时间
         stopGrabEndTime:"00:00",//暂停抢红包的结束时间
+        receiveMsg: "[Grab RedBag]收到来自群\"%peerName%(%peerUid%)\"成员:\"%senderName%(%sendUin%)\"发送的的红包%amount%元"
     }
 
     static initConfig(pluginPath, configPath) {
