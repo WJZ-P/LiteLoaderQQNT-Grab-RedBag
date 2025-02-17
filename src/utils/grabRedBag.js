@@ -187,7 +187,7 @@ export async function grabRedBag(payload) {
                 //设置定时任务，定时删掉数组中的群
                 setTimeout(() => {
                     antiDetectGroups = antiDetectGroups.filter(pausedGroupUid => pausedGroupUid !== peerUid);
-                    pluginLog("恢复监听")
+                    pluginLog(`恢复监听群${peerName}(${peerUid})`)
                 }, antiDetectTime)
             }
 
