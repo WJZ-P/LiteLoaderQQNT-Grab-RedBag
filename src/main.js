@@ -6,7 +6,7 @@ const {Config} = require("./Config");
 const fs = require("fs");
 const {ipcModifyer} = require("./utils/ipcUtils");
 const pluginPath = path.join(LiteLoader.plugins.grab_redbag.path.plugin);//插件目录
-const configPath = path.join(pluginPath, "config.json");
+const configPath = path.join(LiteLoader.plugins.grab_redbag.path.data, "config.json");
 const config = Config.config
 
 onLoad()//妈的，启动！

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const {pluginLog} = require("./utils/logUtils")
+const path = require("path");
 
 class Config {
     static config = {
@@ -37,6 +38,7 @@ class Config {
         this.config.configPath = configPath
         pluginLog('现在执行initConfig方法')
         if (!(fs.existsSync(this.config.configPath))) {//如果文件目录不存在，就创建文件
+            fs.mkdirSync(path.dirname(this.config.configPath),{ recursive: true })
             pluginLog('第一次启动，准备创建配置文件')
             pluginLog('插件路径为' + this.config.pluginPath)
             fs.writeFileSync(this.config.configPath, JSON.stringify(this.config, null, 4), 'utf-8')
