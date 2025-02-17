@@ -40,6 +40,7 @@ async function onLoad() {
 
 async function onHashUpdate() {
     const hash = location.hash;
+    if (window.webContentId !== 2) return//尝试修复多次提醒消息的bug。只在QQ主界面注册事件。
     if (hash === '#/blank') return
     if (!(hash.includes("#/main/message") || hash.includes("#/chat"))) return;//不符合条件直接返回
 

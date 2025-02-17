@@ -42,6 +42,18 @@ export class SettingListeners {
         })
     }
 
+    async antiDetectBtnListener(){
+        const btn=this.document.querySelector('#gr-anti-detect-button')
+        if ((await grAPI.getConfig()).antiDetect) btn.classList.toggle('is-active')
+
+        btn.addEventListener('click', async () => {
+            const isAntiDetect = (await grAPI.getConfig()).antiDetect
+            btn.classList.toggle('is-active')
+            //修改状态
+            await grAPI.setConfig({antiDetect: !isAntiDetect})
+        })
+    }
+
     async NotificationOnlyButtonListener() {
         const button = this.document.querySelector('#gr-notification-only-button')
         if ((await grAPI.getConfig()).notificationonly) button.classList.toggle('is-active')
@@ -266,5 +278,6 @@ export class SettingListeners {
         this.startTimeInputListener()
         this.endTimeInputListener()
         this.receiveMsgListener()
+        this.antiDetectBtnListener()
     }
 }

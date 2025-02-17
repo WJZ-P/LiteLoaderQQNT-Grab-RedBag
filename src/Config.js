@@ -5,6 +5,7 @@ class Config {
     static config = {
         isActive: true,//是否开启抢红包功能
         notificationonly: false,//是否仅通知
+        antiDetect:false,//是否启用一分钱检测
         useRandomDelay: false,//是否启用随机延迟
         delayLowerBound: "",
         delayUpperBound: "",

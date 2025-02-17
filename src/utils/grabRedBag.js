@@ -2,6 +2,8 @@ import {pluginLog} from "./frontLogUtils.js";
 
 const pluginAPI = window.grab_redbag
 const grabedArray = []
+let antiDetectGroups = []//暂时停止监听的群。
+const antiDetectTime = 300//默认暂停五分钟
 
 export async function grabRedBag(payload) {
     // pluginLog("下面是onRecvActiveMsg的payload")
@@ -64,8 +66,6 @@ export async function grabRedBag(payload) {
     }
 
 
-
-
     if (config.notificationonly) {
         pluginLog("检测到已开启仅通知模式")
         await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
@@ -88,9 +88,14 @@ export async function grabRedBag(payload) {
     }
 
     //还要检测是否开启特定时段禁止抢红包功能。
-    if(config.stopGrabByTime){
+    if (config.stopGrabByTime) {
         //检测时间段
-        if(isCurrentTimeInRange(config.stopGrabStartTime,config.stopGrabEndTime)) return
+        if (isCurrentTimeInRange(config.stopGrabStartTime, config.stopGrabEndTime)) return
+    }
+    //检测是否在暂时监听名单内
+    if (antiDetectGroups.includes(peerUid)) {
+        pluginLog("当前群在暂停收红包的群内！不抢红包！")
+        return
     }
 
     //下面准备发送收红包消息
@@ -169,17 +174,29 @@ export async function grabRedBag(payload) {
                 }],
                 "msgAttributeInfos": new Map()
             }, null)
-        else{
+        else {
             //这里先准备好需要用到的数据
             //peerName群名、peerUid群号、senderName发红包的人名、sendUin发红包的人的Q号
-            let amount=parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100
+            let amount = parseInt(result.grabRedBagRsp.recvdOrder.amount) / 100
+
+            //检测收到的是不是一分钱
+            if (amount === 0.01 && config.antiDetect) {
+                pluginLog("检测到一分钱红包！不抢红包！")
+                //暂时不抢这个群的红包
+                antiDetectGroups.push(peerUid)
+                //设置定时任务，定时删掉数组中的群
+                setTimeout(() => {
+                    antiDetectGroups = antiDetectGroups.filter(pausedGroupUid => pausedGroupUid !== peerUid);
+                    pluginLog("恢复监听")
+                }, antiDetectTime)
+            }
 
             //定义需要发送的消息
-            const msg=config.receiveMsg.replace("%peerName%",peerName)
-                .replace("%peerUid%",peerUid)
-                .replace("%senderName%",senderName)
-                .replace("%sendUin%",sendUin)
-                .replace("%amount%",amount.toFixed(2))
+            const msg = config.receiveMsg.replace("%peerName%", peerName)
+                .replace("%peerUid%", peerUid)
+                .replace("%senderName%", senderName)
+                .replace("%sendUin%", sendUin)
+                .replace("%amount%", amount.toFixed(2))
 
             await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
                 "msgId": "0",
@@ -196,14 +213,15 @@ export async function grabRedBag(payload) {
                     }
                 }],
                 "msgAttributeInfos": new Map()
-            }, null)}
+            }, null)
+        }
     }
 
     //下面进行抢到红包的后续处理。没抢到则直接返回。
-    if(result.grabRedBagRsp.recvdOrder.amount === "0") return
+    if (result.grabRedBagRsp.recvdOrder.amount === "0") return
 
     //下面给对方发送消息
-    if (config.thanksMsgs.length !== 0 && sendUin !== recvUin) {//给对方发送消息
+    if (config.thanksMsgs.length !== 0 && sendUin !== recvUin) {//给对方发送消息。抢自己的红包不发送消息
         await sleep(randomDelayForSend)
         pluginLog("准备给对方发送消息,随机延迟" + randomDelayForSend + "ms")
         await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/sendMsg", false, {
