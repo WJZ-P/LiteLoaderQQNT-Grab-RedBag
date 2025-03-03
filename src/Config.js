@@ -64,15 +64,12 @@ class Config {
             pluginLog("变化的属性为" + JSON.stringify(newConfig))
             Object.assign(this.config, newConfig);
             // 写入配置文件
-            fs.writeFile(this.config.configPath, JSON.stringify(this.config, null, 4), 'utf-8', (err) => {
-                if (err) {
-                    pluginLog('修改配置文件失败')
-                }
-            })
+            fs.writeFileSync(this.config.configPath, JSON.stringify(this.config, null, 4), 'utf-8')
             pluginLog('修改配置文件成功,当前配置如下')
             pluginLog(JSON.stringify(this.config, null, 4))
             return this.config
         } catch (e) {
+            pluginLog("发生错误!")
             console.log(e)
         }
     }
