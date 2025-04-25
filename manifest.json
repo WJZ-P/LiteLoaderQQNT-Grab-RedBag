@@ -4,7 +4,7 @@
     "name": "自动抢红包",
     "slug": "grab_redbag",
     "description": "基于IPC通信的自动抢红包插件ヽ(＾Д＾)ﾉ",
-    "version": "1.8.1",
+    "version": "1.8.2",
     "icon": "./src/assests/savings.svg",
     "thumb": "./src/assests/savings.svg",
     "authors": [{
@@ -21,8 +21,8 @@
     "repo": "WJZ-P/LiteLoaderQQNT-Grab-RedBag",
     "branch": "main",
     "release": {
-      "tag": "v1.8.1",
-      "file": "Grab-RedBag-1.8.1.zip"
+      "tag": "v1.8.2",
+      "file": "Grab-RedBag-1.8.2.zip"
     }
   }
 }

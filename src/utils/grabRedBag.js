@@ -115,7 +115,7 @@ export async function grabRedBag(payload) {
 
     if (redChannel === 32) {
         //说明是口令红包，要输出口令
-        await pluginAPI.invokeNative('ns-ntApi', 'nodeIKernelMsgService/sendMsg', false, {
+        const result = await pluginAPI.invokeNative('ns-ntApi', 'nodeIKernelMsgService/sendMsg', false, {
             "msgId": "0",
             "peer": {
                 "chatType": chatType,
@@ -137,6 +137,11 @@ export async function grabRedBag(payload) {
             ],
             "msgAttributeInfos": new Map(),
         })
+        //这里要做校验，如果消息发送失败了，那就得取消抢红包，以避免被禁言了的情况下抢到口令红包的情况。
+        pluginLog("发送口令红包的口令，下面是发送口令回调结果")
+        console.log(JSON.stringify(result, null, null))
+        //如果口令发送失败，比如被禁言，就不抢红包了
+        if (result.result !== 0 || result.errMsg !== "") return
     }
 
     const result = await pluginAPI.invokeNative('ns-ntApi', "nodeIKernelMsgService/grabRedBag", false, {
