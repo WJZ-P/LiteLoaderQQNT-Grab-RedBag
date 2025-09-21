@@ -7,8 +7,19 @@ function ipcModifyer(ipcProxy) {
             let modifiedArgs = args;
             try {//thisArg是WebContent对象
                 //设置ipc通道名
-                const ipcName = args?.[3]?.[1]?.[0]
-                if (ipcName === "nodeIKernelMsgService/deleteActiveChatByUid") modifiedArgs = await ipcdeleteActiveChatByUidModify(args);
+                //const ipcName = args?.[3]?.[1]?.[0]   这个是旧版
+
+                //新版QQ的格式已修改。
+                const ipcName = args?.[3]?.[1]?.cmdName
+                const eventName = args?.[3]?.[0]?.eventName
+
+                 if (eventName !== "ns-LoggerApi-2") console.log(JSON.stringify(args))//调试的时候用
+
+                if (ipcName === "nodeIKernelMsgService/deleteActiveChatByUid") {
+                    pluginLog("拦截到了deleteActiveChatByUid.")
+                    pluginLog(args)
+                    modifiedArgs = await ipcdeleteActiveChatByUidModify(args);
+                }
                 return target.apply(thisArg, modifiedArgs)
             } catch (err) {
                 console.log(err);
