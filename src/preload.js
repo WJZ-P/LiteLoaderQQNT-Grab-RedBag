@@ -1,10 +1,27 @@
-// Electron 主进程 与 渲染进程 交互的桥梁
+// Electron 主进程 与 渲染进程 交互的桥梁（新版 RM_IPC）
 const {contextBridge, ipcRenderer} = require("electron");
 
-let {webContentsId} = ipcRenderer.sendSync('___!boot');
-if (!webContentsId) {
-    webContentsId = 2;
-}
+// 获取 webContentsId
+let webContentsId = 2;
+try {
+    const boot = ipcRenderer.sendSync("___!boot");
+    if (boot && boot.webContentsId) webContentsId = boot.webContentsId;
+} catch {}
+// URL 参数兜底
+try {
+    if (!webContentsId || webContentsId === 2) {
+        const m = global.location?.search?.match(/webcontentsid=(\d+)/i);
+        if (m) webContentsId = Number(m[1]);
+    }
+} catch {}
+
+// 新版 RM_IPC 通道名
+const IPC_UP_CHANNEL = `RM_IPCTO_MAIN${webContentsId}`;       // 渲染 -> 主进程（发送请求）
+const IPC_DOWN_CHANNEL = `RM_IPCFROM_MAIN${webContentsId}`;   // 主进程 -> 渲染（接收响应）
+const IPC_DOWN_MAIN2 = `RM_IPCFROM_MAIN2`;                    // 兜底通道
+const IPC_FROM_RENDERER = `RM_IPCFROM_RENDERER${webContentsId}` //  invokeNative的时候用
+
+console.log(`[Grab-RedBag] webContentsId=${webContentsId}, UP=${IPC_UP_CHANNEL}, DOWN=${IPC_DOWN_CHANNEL}`);
 
 // 在window对象下导出只读对象
 contextBridge.exposeInMainWorld("grab_redbag", {
@@ -26,129 +43,110 @@ contextBridge.exposeInMainWorld("grab_redbag", {
 
 
 /**
- * 调用一个qq底层函数，并返回函数返回值。
+ * 【V2 版本】调用 QQ 底层 NTAPI 函数（新版 RM_IPC 格式）
  *
- * @param { String } eventName 函数事件名。
- * @param { String } cmdName 函数名。
- * @param { Boolean } registered 函数是否为一个注册事件函数。
+ * @param { String } eventName 函数事件名，例如 "ns-ntApi"。
+ * @param { String } cmdName 函数名，例如 "nodeIKernelMsgService/grabRedBag"。
+ * @param { Boolean } registered 函数是否为一个注册事件函数（本版本暂未使用）。
  * @param  { ...any } args 函数参数。
  * @returns { Promise<any> } 函数返回值。
  */
 function invokeNative(eventName, cmdName, registered, ...args) {
-    return new Promise(resolve => {
-        const callbackId = crypto.randomUUID();
-        const callback = (event, ...args) => {
-            if (args?.[0]?.callbackId == callbackId) {
-                ipcRenderer.off(`IPC_DOWN_${webContentsId}`, callback);
-                resolve(args[1]);
+    console.log(`[Grab-RedBag invokeNative] 准备发送 IPC 消息:
+    - UP Channel: ${IPC_UP_CHANNEL}
+    - DOWN Channel: ${IPC_DOWN_CHANNEL}
+    - Event: ${eventName}
+    - Command: ${cmdName}
+    - Args:`, ...args);
+
+    return new Promise((resolve, reject) => {
+        const callbackId = crypto.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+        const callback = (_event, ...resultArgs) => {
+            // 新版回调结构：resultArgs[0] 包含 callbackId，resultArgs[1] 是结果
+            if (resultArgs?.[0]?.callbackId === callbackId) {
+                console.log('[Grab-RedBag invokeNative] 收到回调:', resultArgs[1]);
+                try { ipcRenderer.off(IPC_DOWN_CHANNEL, callback); } catch {}
+                try { ipcRenderer.off(IPC_DOWN_MAIN2, callback); } catch {}
+                resolve(resultArgs[1]);
             }
         };
-        ipcRenderer.on(`IPC_DOWN_${webContentsId}`, callback);
-        ipcRenderer.send(`IPC_UP_${webContentsId}`, {
-            type: 'request',
-            callbackId,
-            eventName: `${eventName}-${webContentsId}${registered ? '-register' : ''}`
-        }, [cmdName, ...args]);
+
+        // 监听回调通道 + 兜底通道
+        try { ipcRenderer.on(IPC_DOWN_CHANNEL, callback); } catch {}
+        try { ipcRenderer.on(IPC_DOWN_MAIN2, callback); } catch {}
+
+        // 构建新版载荷
+        const requestMetadata = {
+            type: "request",
+            callbackId: callbackId,
+            eventName: eventName,
+            peerId: webContentsId
+        };
+
+        const commandPayload = {
+            cmdName: cmdName,
+            cmdType: "invoke",
+            payload: args
+        };
+
+        // 发送 IPC 消息
+        try {
+            ipcRenderer.send(IPC_FROM_RENDERER, requestMetadata, commandPayload);
+            console.log('[Grab-RedBag invokeNative] IPC 消息已发送。');
+        } catch (error) {
+            console.error('[Grab-RedBag invokeNative] IPC 消息发送失败:', error);
+            try { ipcRenderer.off(IPC_DOWN_CHANNEL, callback); } catch {}
+            try { ipcRenderer.off(IPC_DOWN_MAIN2, callback); } catch {}
+            reject(error);
+        }
     });
 }
 
 /**
- * 为qq底层事件 `cmdName` 添加 `handler` 处理器。
+ * 为qq底层事件 `cmdName` 添加 `handler` 处理器。（新版 RM_IPC）
  *
  * @param { String } cmdName 事件名称。
  * @param { Function } handler 事件处理器。
  * @returns { Function } 新的处理器。
  */
 function subscribeEvent(cmdName, handler) {
-    const listener = (event, ...args) => {
-        if (args?.[1]?.[0]?.cmdName == cmdName) {
-            handler(args[1][0].payload);
+    console.log(`[Grab-RedBag] subscribeEvent: cmdName=${cmdName}, DOWN=${IPC_DOWN_CHANNEL}`);
+    
+    const listener = (_event, ...args) => {
+        // // ===== 调试：打印收到的所有事件 =====
+        // console.log("[Grab-RedBag] ===== 收到IPC事件 =====");
+        // console.log("[Grab-RedBag] args长度:", args.length);
+        // for (let i = 0; i < args.length; i++) {
+        //     console.log(`[Grab-RedBag] args[${i}]:`, JSON.stringify(args[i], null, 2));
+        // }
+        // console.log("[Grab-RedBag] ===== 事件打印结束 =====");
+
+        // 尝试新版格式: args[1].cmdName
+        if (args?.[1]?.cmdName === cmdName) {
+            handler(args[1].payload);
+            return;
+        }
+        // 尝试旧版格式: args[3][1].cmdName
+        if (args?.[3]?.[1]?.cmdName === cmdName) {
+            handler(args[3][1].payload);
+            return;
         }
     };
-    ipcRenderer.on(`IPC_DOWN_${webContentsId}`, listener);
+    
+    // 监听主通道 + 兜底通道
+    try { ipcRenderer.on(IPC_DOWN_CHANNEL, listener); } catch {}
+    try { ipcRenderer.on(IPC_DOWN_MAIN2, listener); } catch {}
     return listener;
 }
 
 /**
- * 移除qq底层事件的 `handler` 处理器。
- *
- * 请注意，`handler` 并不是传入 `subscribeEvent` 的处理器，而是其返回的新处理器。
+ * 移除qq底层事件的 `handler` 处理器。（新版 RM_IPC）
  *
  * @param { Function } handler 事件处理器。
  */
 function unsubscribeEvent(handler) {
-    ipcRenderer.off(`IPC_DOWN_${webContentsId}`, handler);
+    try { ipcRenderer.off(IPC_DOWN_CHANNEL, handler); } catch {}
+    try { ipcRenderer.off(IPC_DOWN_MAIN2, handler); } catch {}
 }
 
-//过时了！我们需要一个新版的底层函数！
-
-/**
- * 【V2 版本】 - 调用 QQ 底层 NTAPI 函数
- * 该版本根据 QQ NT 9.9.9+ 的新版 IPC 格式进行了重构。
- *
- * @param {string} eventName - 基础事件名，例如 "ntApi"。函数会自动处理 peerId。
- * @param {string} cmdName - 具体要调用的方法名，例如 "nodeIKernelMsgService/forwardMsgWithComment"。
- * @param {number} peerId - 当前窗口的唯一标识，通常是 window.webContentId。
- * @param {...any} args - 要传递给目标方法的参数列表。
- * @returns {Promise<any>} - 返回一个 Promise，解析为目标方法的返回值。
- */
-function invokeNativeV2(eventName, cmdName, peerId, ...args) {
-    // 1. 定义新的 IPC 通道名称
-    const ipc_up_channel = `RM_IPCFROM_RENDERER${peerId}`;
-    const ipc_down_channel = `RM_IPCTO_RENDERER${peerId}`; // 这是基于发送通道的合理推测，如果收不到回调，可能需要抓包确认此名称
-
-    // 2. 打印调试信息，方便排查
-    console.log(`[invokeNativeV2] 准备发送 IPC 消息:
-    - Channel: ${ipc_up_channel}
-    - Event: ${eventName}
-    - Command: ${cmdName}
-    - PeerId: ${peerId}
-    - Args:`, ...args);
-
-    return new Promise((resolve, reject) => {
-        const callbackId = crypto.randomUUID();
-
-        // 3. 定义回调函数，用于接收返回数据
-        const callback = (event, ...resultArgs) => {
-            // 新版的回调结构也可能变了，这里我们假设它和以前类似，第一个参数是包含 callbackId 的对象
-            // resultArgs[0] -> { "type": "response", "callbackId": "...", "eventName": "..." }
-            // resultArgs[1] -> a.k.a the actual result
-            if (resultArgs?.[0]?.callbackId === callbackId) {
-                console.log('[invokeNativeV2] 收到回调:', resultArgs[1]);
-                ipcRenderer.off(ipc_down_channel, callback);
-                resolve(resultArgs[1]);
-            }
-        };
-
-        // 4. 监听回调通道
-        ipcRenderer.on(ipc_down_channel, callback);
-
-        // 5. 构建全新的载荷 (Payload)
-        const requestMetadata = {
-            type: "request",
-            callbackId: callbackId,
-            eventName: eventName, // 使用简洁的 eventName
-            peerId: peerId
-        };
-
-        const commandPayload = {
-            cmdName: cmdName,
-            cmdType: "invoke", // 从抓包结果看，这似乎是固定的
-            payload: args // 将所有参数包裹在 payload 数组中
-        };
-
-        // 6. 发送 IPC 消息
-        try {
-            ipcRenderer.send(
-                ipc_up_channel,
-                requestMetadata,
-                commandPayload
-            );
-            console.log('[invokeNativeV2] IPC 消息已发送。');
-        } catch (error) {
-            console.error('[invokeNativeV2] IPC 消息发送失败:', error);
-            ipcRenderer.off(ipc_down_channel, callback);
-            reject(error);
-        }
-    });
-}

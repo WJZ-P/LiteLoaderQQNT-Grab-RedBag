@@ -28,9 +28,10 @@ module.exports.onBrowserWindowCreated = window => {
     });
 
     window.webContents.on("did-stop-loading", async () => {
-        if (window.id === 2 && chatWindows.length === 0) {//只改QQ主窗口就行了
+        //  现在QQ主窗口id是3，老版本是2
+        if ((window.id === 3 || window.id.toString() ==="3") && chatWindows.length === 0) {//只改QQ主窗口就行了
             chatWindows.push(window)
-            //pluginLog(JSON.stringify(config))
+            pluginLog(JSON.stringify(config))
 
             if (config.isActiveAllGroups)//如果激活所有群，就拦截取消激活的事件，使得激活的聊天不会被取消
             {

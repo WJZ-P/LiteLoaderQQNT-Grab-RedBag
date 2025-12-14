@@ -13,12 +13,15 @@ function ipcModifyer(ipcProxy) {
                 const ipcName = args?.[3]?.[1]?.cmdName
                 const eventName = args?.[3]?.[0]?.eventName
 
-                 if (eventName !== "ns-LoggerApi-2") console.log(JSON.stringify(args))//调试的时候用
+                //if (eventName !== "ns-LoggerApi-2") console.log(JSON.stringify(args))//调试的时候用
 
                 if (ipcName === "nodeIKernelMsgService/deleteActiveChatByUid") {
                     pluginLog("拦截到了deleteActiveChatByUid.")
                     pluginLog(args)
                     modifiedArgs = await ipcdeleteActiveChatByUidModify(args);
+                }
+                if(ipcName === "nodeIKernelMsgListener/onRecvMsg"){
+                    pluginLog(args[3][1].payload)
                 }
                 return target.apply(thisArg, modifiedArgs)
             } catch (err) {

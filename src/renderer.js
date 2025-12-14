@@ -40,14 +40,18 @@ async function onLoad() {
 
 async function onHashUpdate() {
     const hash = location.hash;
-    if (window.webContentId !== 2) return//尝试修复多次提醒消息的bug。只在QQ主界面注册事件。
+    //  新版QQ主页面的webcontentid改成了3
+    if (window.webContentId !== 3) return//尝试修复多次提醒消息的bug。只在QQ主界面注册事件。
     if (hash === '#/blank') return
     if (!(hash.includes("#/main/message") || hash.includes("#/chat"))) return;//不符合条件直接返回
+
+    pluginLog("onHashUpdate开始执行")
 
     grAPI.addEventListener('LiteLoader.grab_redbag.unSubscribeListener', () => grAPI.unsubscribeEvent(grabRedBagListener)) //收到取消订阅消息，取消订阅红包消息
     grAPI.addEventListener('LiteLoader.grab_redbag.subscribeListener', () => {
         pluginLog("渲染进程收到请求，准备监听红包事件。")
-        grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => grabRedBag(payload))
+        //旧版是onRecvActiveMsg，新版是onRecvMsg
+        grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvMsg", (payload) => grabRedBag(payload))
     })//添加订阅
 
     pluginLog('执行onHashUpdate')
@@ -58,15 +62,17 @@ async function onHashUpdate() {
             pluginLog("功能未开启，不监听抢红包事件")
             return
         }
-        grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvActiveMsg", (payload) => grabRedBag(payload))
+        grabRedBagListener = grAPI.subscribeEvent("nodeIKernelMsgListener/onRecvMsg", (payload) => grabRedBag(payload))
         pluginLog("事件监听成功")
 
         //尝试获取群列表
 
         //有人加群的时候会触发onGroupListUpdate
+
+        //NodeIKernelGroupListener/onGroupListUpdate
         grAPI.subscribeEvent("onGroupListUpdate", async (payload) => {
-                //pluginLog("监听到onGroupListUpdate")
-                //console.log(payload)
+                pluginLog("监听到onGroupListUpdate")
+                console.log(payload)
                 if (hasActived) return
                 hasActived = true;
                 if ((await grAPI.getConfig()).isActiveAllGroups) {
@@ -76,6 +82,7 @@ async function onHashUpdate() {
             }
         )
 
+        //NodeIKernelGroupService/getGroupList
         const result = await grAPI.invokeNative('ns-NodeStoreApi', "getGroupList", false)
         console.log(result)
 
