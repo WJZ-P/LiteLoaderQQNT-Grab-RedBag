@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version from manifest
+        id: meta
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "zip_name=Grab-RedBag-${VERSION}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Package
+        run: |
+          zip -r "${{ steps.meta.outputs.zip_name }}" . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x ".gitignore" \
+            -x ".idea/*" \
+            -x "src/test/*" \
+            -x "config.json" \
+            -x "README.md" \
+            -x "*.md" \
+            -x ".codebuddy/*"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.meta.outputs.zip_name }}
+          generate_release_notes: true
