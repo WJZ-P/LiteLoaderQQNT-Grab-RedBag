@@ -181,26 +181,16 @@ export async function grabRedBag(payload) {
             break;//说明未启用黑白名单
 
         case "1": {//说明是白名单
-            if (!((config.listenKeyWords.length === 0 || config.listenKeyWords.some(word => title.includes(word))) && (config.listenGroups.length === 0 || config.listenGroups.includes(peerUid)) && (config.listenQQs.length === 0 || config.listenQQs.includes(sendUin)))) {
+            const titleLower = title.toLowerCase()
+            const keyWordMatch = config.listenKeyWords.length === 0 || config.listenKeyWords.some(word => titleLower.includes(word.toLowerCase()))
+            const groupMatch = config.listenGroups.length === 0 || config.listenGroups.includes(peerUid)
+            const qqMatch = config.listenQQs.length === 0 || config.listenQQs.includes(sendUin)
+            console.log(`[Grab-RedBag] 白名单检查: title="${title}", keyWordMatch=${keyWordMatch}, groupMatch=${groupMatch}, qqMatch=${qqMatch}`)
+            if (!(keyWordMatch && groupMatch && qqMatch)) {
                 pluginLog("未同时满足关键字、白名单群和发送者条件，不抢红包")
                 console.log("[Grab-RedBag] 白名单检查未通过，退出")
                 if (config.notifyOnBlocked) {
-                    await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/sendMsg", false, {
-                        "msgId": "0",
-                        "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
-                        "msgElements": [{
-                            "elementType": 1,
-                            "elementId": "",
-                            "textElement": {
-                                "content": `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但未满足白名单条件，未领取。`,
-                                "atType": 0,
-                                "atUid": "",
-                                "atTinyId": "",
-                                "atNtUid": ""
-                            }
-                        }],
-                        "msgAttributeInfos": new Map()
-                    }, null)
+                    await sendNotifyMsg(IsGroup, receiver, `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但未满足白名单条件，未领取。`)
                 }
                 return
             }
@@ -208,26 +198,16 @@ export async function grabRedBag(payload) {
             break
         }
         case "2": {//说明是黑名单
-            if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid) || config.avoidQQs.includes(sendUin)) {
+            const titleLower = title.toLowerCase()
+            const hitKeyWord = config.avoidKeyWords.some(word => titleLower.includes(word.toLowerCase()))
+            const hitGroup = config.avoidGroups.includes(peerUid)
+            const hitQQ = config.avoidQQs.includes(sendUin)
+            console.log(`[Grab-RedBag] 黑名单检查: title="${title}", hitKeyWord=${hitKeyWord}, hitGroup=${hitGroup}, hitQQ=${hitQQ}`)
+            if (hitKeyWord || hitGroup || hitQQ) {
                 pluginLog("检测到黑名单关键字、在黑名单群内或发送者在黑名单内，不抢红包")
                 console.log("[Grab-RedBag] 黑名单检查命中，退出")
                 if (config.notifyOnBlocked) {
-                    await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/sendMsg", false, {
-                        "msgId": "0",
-                        "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
-                        "msgElements": [{
-                            "elementType": 1,
-                            "elementId": "",
-                            "textElement": {
-                                "content": `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但命中黑名单，未领取。`,
-                                "atType": 0,
-                                "atUid": "",
-                                "atTinyId": "",
-                                "atNtUid": ""
-                            }
-                        }],
-                        "msgAttributeInfos": new Map()
-                    }, null)
+                    await sendNotifyMsg(IsGroup, receiver, `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但命中黑名单，未领取。`)
                 }
                 return
             }
@@ -265,6 +245,9 @@ export async function grabRedBag(payload) {
         console.log("[Grab-RedBag] 检查时间段限制，开始:", config.stopGrabStartTime, "结束:", config.stopGrabEndTime)
         if (isCurrentTimeInRange(config.stopGrabStartTime, config.stopGrabEndTime)) {
             console.log("[Grab-RedBag] 当前在禁止时间段内，退出")
+            if (config.notifyOnBlocked) {
+                await sendNotifyMsg(IsGroup, receiver, `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但当前处于禁抢时段，未领取。`)
+            }
             return
         }
     }
@@ -272,6 +255,9 @@ export async function grabRedBag(payload) {
     if (antiDetectGroups.includes(peerUid)) {
         pluginLog("当前群在暂停收红包的群内！不抢红包！")
         console.log("[Grab-RedBag] 群在 antiDetectGroups 中，退出")
+        if (config.notifyOnBlocked) {
+            await sendNotifyMsg(IsGroup, receiver, `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但该群因一分钱检测暂停抢红包，未领取。`)
+        }
         return
     }
 
@@ -282,12 +268,16 @@ export async function grabRedBag(payload) {
     let randomDelayForSend = 0;
     if (config.useRandomDelay) {
 
-        const lowerBound = parseInt(config.delayLowerBound)
-        const upperBound = parseInt(config.delayUpperBound)
-        const lowerBoundForSend = parseInt(config.delayLowerBoundForSend)
-        const upperBoundForSend = parseInt(config.delayUpperBoundForSend)
-        const randomDelay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
-        randomDelayForSend = Math.floor(Math.random() * (upperBoundForSend - lowerBoundForSend + 1)) + lowerBoundForSend;
+        const lowerBound = parseInt(config.delayLowerBound) || 0
+        const upperBound = parseInt(config.delayUpperBound) || 0
+        const lowerBoundForSend = parseInt(config.delayLowerBoundForSend) || 0
+        const upperBoundForSend = parseInt(config.delayUpperBoundForSend) || 0
+        const randomDelay = upperBound > lowerBound
+            ? Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound
+            : lowerBound;
+        randomDelayForSend = upperBoundForSend > lowerBoundForSend
+            ? Math.floor(Math.random() * (upperBoundForSend - lowerBoundForSend + 1)) + lowerBoundForSend
+            : lowerBoundForSend;
         pluginLog("等待随机时间" + randomDelay + "ms")
         await sleep(randomDelay)
     }
@@ -393,7 +383,7 @@ export async function grabRedBag(payload) {
 
             //检测收到的是不是一分钱
             if (amount === 0.01 && config.antiDetect) {
-                pluginLog("检测到一分钱红包！不抢红包！")
+                pluginLog("检测到一分钱红包！暂停该群抢红包5分钟！")
                 //暂时不抢这个群的红包
                 antiDetectGroups.push(peerUid)
                 //设置定时任务，定时删掉数组中的群
@@ -401,6 +391,9 @@ export async function grabRedBag(payload) {
                     antiDetectGroups = antiDetectGroups.filter(pausedGroupUid => pausedGroupUid !== peerUid);
                     pluginLog(`恢复监听群${peerName}(${peerUid})`)
                 }, antiDetectTime)
+                if (config.notifyOnBlocked) {
+                    await sendNotifyMsg(IsGroup, receiver, `[Grab RedBag]抢到来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的一分钱红包，已暂停该群抢红包5分钟。`)
+                }
             }
 
             //定义需要发送的消息
@@ -466,6 +459,22 @@ export async function grabRedBag(payload) {
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(() => resolve(), ms))
+}
+
+async function sendNotifyMsg(chatType, peerUid, content) {
+    await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/sendMsg", false, {
+        "msgId": "0",
+        "peer": {"chatType": chatType, "peerUid": peerUid, "guildId": ""},
+        "msgElements": [{
+            "elementType": 1,
+            "elementId": "",
+            "textElement": {
+                "content": content,
+                "atType": 0, "atUid": "", "atTinyId": "", "atNtUid": ""
+            }
+        }],
+        "msgAttributeInfos": new Map()
+    }, null)
 }
 
 function isCurrentTimeInRange(startTimeStr, endTimeStr) {
