@@ -28,8 +28,10 @@ module.exports.onBrowserWindowCreated = window => {
     });
 
     window.webContents.on("did-stop-loading", async () => {
-        //  现在QQ主窗口id是3，老版本是2
-        if ((window.id === 3 || window.id.toString() ==="3") && chatWindows.length === 0) {//只改QQ主窗口就行了
+        // 通过 URL 判断是否为 QQ 主聊天窗口（兼容不同平台窗口 ID 不同的问题）
+        const url = window.webContents.getURL();
+        const isMainWindow = url.includes("#/main/message") || url.includes("#/chat") || url.includes("#/blank");
+        if (isMainWindow && chatWindows.length === 0) {
             chatWindows.push(window)
             pluginLog(JSON.stringify(config))
 

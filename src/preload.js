@@ -23,6 +23,9 @@ const IPC_FROM_RENDERER = `RM_IPCFROM_RENDERER${webContentsId}` //  invokeNative
 
 console.log(`[Grab-RedBag] webContentsId=${webContentsId}, UP=${IPC_UP_CHANNEL}, DOWN=${IPC_DOWN_CHANNEL}`);
 
+// 将 webContentsId 暴露给渲染进程，用于主窗口判断（兼容不同平台）
+contextBridge.exposeInMainWorld("grab_redbag_webContentsId", webContentsId);
+
 // 在window对象下导出只读对象
 contextBridge.exposeInMainWorld("grab_redbag", {
     getMenuHTML: () => ipcRenderer.invoke("LiteLoader.grab_redbag.getMenuHTML"),

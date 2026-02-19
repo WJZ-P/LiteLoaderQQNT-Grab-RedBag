@@ -40,8 +40,7 @@ async function onLoad() {
 
 async function onHashUpdate() {
     const hash = location.hash;
-    //  新版QQ主页面的webcontentid改成了3
-    if (window.webContentId !== 3) return//尝试修复多次提醒消息的bug。只在QQ主界面注册事件。
+    // 通过 hash 判断是否为主界面，不再硬编码 webContentId（兼容 Linux 等平台窗口 ID 不同）
     if (hash === '#/blank') return
     if (!(hash.includes("#/main/message") || hash.includes("#/chat"))) return;//不符合条件直接返回
 
