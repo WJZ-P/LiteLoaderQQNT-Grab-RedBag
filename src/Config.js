@@ -30,6 +30,7 @@ class Config {
         stopGrabByTime:false,//根据时间停止抢红包
         stopGrabStartTime:"00:00",//暂停抢红包的开始时间
         stopGrabEndTime:"00:00",//暂停抢红包的结束时间
+        notifyOnBlocked: false,//黑白名单拦截时是否发送提醒
         receiveMsg: "[Grab RedBag]收到来自群\"%peerName%(%peerUid%)\"成员:\"%senderName%(%sendUin%)\"发送的的红包%amount%元"
     }
 
@@ -45,6 +46,9 @@ class Config {
             pluginLog('配置文件创建成功')
         }
         Object.assign(this.config, JSON.parse(fs.readFileSync(this.config.configPath, 'utf-8')))
+        // 防止文件中的旧路径覆盖正确路径
+        this.config.pluginPath = pluginPath
+        this.config.configPath = configPath
         pluginLog('当前的配置文件为')
         console.log(this.config)
         pluginLog('配置初始化完毕')

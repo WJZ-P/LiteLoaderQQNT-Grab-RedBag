@@ -172,6 +172,24 @@ export async function grabRedBag(payload) {
             if (!((config.listenKeyWords.length === 0 || config.listenKeyWords.some(word => title.includes(word))) && (config.listenGroups.length === 0 || config.listenGroups.includes(peerUid)) && (config.listenQQs.length === 0 || config.listenQQs.includes(sendUin)))) {
                 pluginLog("未同时满足关键字、白名单群和发送者条件，不抢红包")
                 console.log("[Grab-RedBag] 白名单检查未通过，退出")
+                if (config.notifyOnBlocked) {
+                    await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/sendMsg", false, {
+                        "msgId": "0",
+                        "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
+                        "msgElements": [{
+                            "elementType": 1,
+                            "elementId": "",
+                            "textElement": {
+                                "content": `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但未满足白名单条件，未领取。`,
+                                "atType": 0,
+                                "atUid": "",
+                                "atTinyId": "",
+                                "atNtUid": ""
+                            }
+                        }],
+                        "msgAttributeInfos": new Map()
+                    }, null)
+                }
                 return
             }
             console.log("[Grab-RedBag] 白名单检查通过")
@@ -181,6 +199,24 @@ export async function grabRedBag(payload) {
             if (config.avoidKeyWords.some(word => title.includes(word)) || config.avoidGroups.includes(peerUid) || config.avoidQQs.includes(sendUin)) {
                 pluginLog("检测到黑名单关键字、在黑名单群内或发送者在黑名单内，不抢红包")
                 console.log("[Grab-RedBag] 黑名单检查命中，退出")
+                if (config.notifyOnBlocked) {
+                    await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/sendMsg", false, {
+                        "msgId": "0",
+                        "peer": {"chatType": IsGroup, "peerUid": receiver, "guildId": ""},
+                        "msgElements": [{
+                            "elementType": 1,
+                            "elementId": "",
+                            "textElement": {
+                                "content": `[Grab RedBag]发现来自群"${peerName}(${peerUid})"成员:"${senderName}(${sendUin})"发送的红包，但命中黑名单，未领取。`,
+                                "atType": 0,
+                                "atUid": "",
+                                "atTinyId": "",
+                                "atNtUid": ""
+                            }
+                        }],
+                        "msgAttributeInfos": new Map()
+                    }, null)
+                }
                 return
             }
             console.log("[Grab-RedBag] 黑名单检查通过")

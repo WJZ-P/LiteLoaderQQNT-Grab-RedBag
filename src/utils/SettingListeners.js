@@ -54,6 +54,17 @@ export class SettingListeners {
         })
     }
 
+    async notifyOnBlockedBtnListener(){
+        const btn=this.document.querySelector('#gr-notify-on-blocked-button')
+        if ((await grAPI.getConfig()).notifyOnBlocked) btn.classList.toggle('is-active')
+
+        btn.addEventListener('click', async () => {
+            const notifyOnBlocked = (await grAPI.getConfig()).notifyOnBlocked
+            btn.classList.toggle('is-active')
+            await grAPI.setConfig({notifyOnBlocked: !notifyOnBlocked})
+        })
+    }
+
     async NotificationOnlyButtonListener() {
         const button = this.document.querySelector('#gr-notification-only-button')
         if ((await grAPI.getConfig()).notificationonly) button.classList.toggle('is-active')
@@ -279,5 +290,6 @@ export class SettingListeners {
         this.endTimeInputListener()
         this.receiveMsgListener()
         this.antiDetectBtnListener()
+        this.notifyOnBlockedBtnListener()
     }
 }
