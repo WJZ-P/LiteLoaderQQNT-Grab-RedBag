@@ -35,8 +35,18 @@ jobs:
             -x "*.md" \
             -x ".codebuddy/*"
 
+      - name: Read CHANGELOG
+        id: changelog
+        run: |
+          # 读取第一个 ## 版本块的内容（从第一个 ## 到下一个 ## 之前）
+          BODY=$(awk '/^## /{if(found) exit; found=1; next} found{print}' CHANGELOG.md)
+          # 写入多行输出
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$BODY" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.meta.outputs.zip_name }}
-          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.body }}
