@@ -57,7 +57,7 @@
                 <div class="vertical-list-item">
                     <div>
                         <h2>启用回馈消息</h2>
-                        <span class="secondary-text">抢到红包后给自己发送消息</span>
+                        <span class="secondary-text">抢到红包后给目标发送消息</span>
                     </div>
                     <div id="gr-feedback-msg-button" class="q-switch">
                         <span class="q-switch__handle"></span>
@@ -65,13 +65,21 @@
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
-                    <div>
-                        <h2>回馈消息设置</h2>
-                        <span class="secondary-text">留空则默认发给自己，输入1发给“我的手机”、输入群号则发给该群</span>
+                    <div style="flex: 1">
+                        <h2>回馈消息发送目标</h2>
+                        <span class="secondary-text">选择抢到红包后回馈消息的发送对象</span>
                     </div>
-                    <input data-type="primary" id="gr-Send2Who-input" style="width: 26%"
-                           class="q-input__inner q-input__inner--clearable custom-input independent-key-input"
-                           type="text" placeholder="留空则默认发给自己">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="gr-send2who-type-selector">
+                            <option value="0">发给自己</option>
+                            <option value="1">我的手机</option>
+                            <option value="2">QQ好友</option>
+                            <option value="3">群聊</option>
+                        </select>
+                        <input data-type="primary" id="gr-Send2Who-input" style="width: 160px"
+                               class="q-input__inner q-input__inner--clearable custom-input"
+                               type="text" placeholder="输入对应ID~">
+                    </div>
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item">
@@ -269,7 +277,7 @@
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item" style="display: flex;flex-direction: column;">
-                    <h1>项目地址https://github.com/WJZ-P/LiteLoaderQQNT-Grab-RedBag</h1>
+                    <h1>项目地址 <a href="https://github.com/WJZ-P/LiteLoaderQQNT-Grab-RedBag" target="_blank" style="color: #007BFF; text-decoration: underline; cursor: pointer;">https://github.com/WJZ-P/LiteLoaderQQNT-Grab-RedBag</a></h1>
                 </div>
                 <hr class="horizontal-dividing-line"/>
                 <div class="vertical-list-item" style="justify-content: center">
@@ -283,7 +291,8 @@
 
 
     <style>
-        #gr-block-type-selector {
+        #gr-block-type-selector,
+        #gr-send2who-type-selector {
             color: gray;
             width: 180px;
             font-size: 14px;
@@ -296,7 +305,8 @@
 
         }
 
-        #gr-block-type-selector option {
+        #gr-block-type-selector option,
+        #gr-send2who-type-selector option {
             background-color: var(--background-color-05); /* 修改选项的背景色 */
             opacity: 0.8;
             color: #333;
@@ -304,12 +314,14 @@
             font-size: 15px;
         }
 
-        #gr-block-type-selector option:hover {
+        #gr-block-type-selector option:hover,
+        #gr-send2who-type-selector option:hover {
             background-color: #66ccff; /* 当鼠标悬停时的背景色 */
             color: #fff; /* 改变文字颜色 */
         }
 
-        #gr-block-type-selector:focus {
+        #gr-block-type-selector:focus,
+        #gr-send2who-type-selector:focus {
             border-color: #007BFF;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }

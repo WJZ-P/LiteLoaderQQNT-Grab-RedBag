@@ -157,8 +157,20 @@ export async function grabRedBag(payload) {
     const title = wallEl.receiver.title
     const redChannel = wallEl.redChannel
     const config = await pluginAPI.getConfig()
-    const IsGroup = config.Send2Who.length === 0 ? 1 : (config.Send2Who[0] === "1" ? 8 : 2);
-    const receiver = config.Send2Who.length === 0 || config.Send2Who[0] === "1" ? authData.uid : config.Send2Who[0];
+    // 根据 Send2WhoType 确定回馈消息发送目标
+    // 0=自己(私聊) 1=我的手机(设备) 2=QQ好友(私聊) 3=群聊
+    const send2WhoType = config.Send2WhoType || "0"
+    let IsGroup, receiver
+    switch (send2WhoType) {
+        case "1": // 我的手机
+            IsGroup = 8; receiver = authData.uid; break
+        case "2": // QQ好友
+            IsGroup = 1; receiver = config.Send2Who[0] || authData.uid; break
+        case "3": // 群聊
+            IsGroup = 2; receiver = config.Send2Who[0] || authData.uid; break
+        default:  // 0=自己
+            IsGroup = 1; receiver = authData.uid; break
+    }
 
 
     //先判断黑白名单的类型

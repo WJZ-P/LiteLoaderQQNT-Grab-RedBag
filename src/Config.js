@@ -19,7 +19,8 @@ class Config {
         listenKeyWords: [],//白名单词语
         listenGroups: [],//白名单群聊
         listenQQs: [],//白名单QQ
-        Send2Who: [],//回馈QQ群号
+        Send2Who: [],//回馈目标号码
+        Send2WhoType: "0",//回馈目标类型：0自己 1我的手机 2QQ好友 3群聊
         useSelfNotice: true,//抢到红包后是否给自己发送消息
         // isSendToPhone: false,//抢红包后是否发送到手机
         thanksMsgs: [],//抢到红包之后的感谢消息
