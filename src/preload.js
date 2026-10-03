@@ -1,30 +1,50 @@
 // Electron 主进程 与 渲染进程 交互的桥梁（新版 RM_IPC）
 const {contextBridge, ipcRenderer} = require("electron");
 
-// 获取 webContentsId
-let webContentsId = 2;
-try {
-    const boot = ipcRenderer.sendSync("___!boot");
-    if (boot && boot.webContentsId) webContentsId = boot.webContentsId;
-} catch {}
-// URL 参数兜底
-try {
-    if (!webContentsId || webContentsId === 2) {
-        const m = global.location?.search?.match(/webcontentsid=(\d+)/i);
-        if (m) webContentsId = Number(m[1]);
+const IPC_TIMEOUT = 10000;
+const subscriptions = new Map();
+let nativeBridgePromise;
+
+// Session preloads can run without onBrowserWindowCreated, so bootstrap must not use sendSync.
+function getNativeBridge() {
+    if (!nativeBridgePromise) {
+        nativeBridgePromise = withTimeout(
+            Promise.resolve().then(() => ipcRenderer.invoke("LiteLoader.grab_redbag.getWebContentsId")),
+            "webContentsId lookup"
+        ).then(id => {
+            const numericId = Number(id);
+            if (!Number.isSafeInteger(numericId) || numericId <= 0) {
+                throw new Error("Invalid grab_redbag webContentsId");
+            }
+            const webContentsId = String(numericId);
+            return {
+                webContentsId,
+                requestChannel: `RM_IPCFROM_RENDERER${webContentsId}`,
+                responseChannels: [...new Set([`RM_IPCFROM_MAIN${webContentsId}`, "RM_IPCFROM_MAIN2"])]
+            };
+        }).catch(error => {
+            nativeBridgePromise = undefined;
+            throw error;
+        });
     }
-} catch {}
+    return nativeBridgePromise;
+}
 
-// 新版 RM_IPC 通道名
-const IPC_UP_CHANNEL = `RM_IPCTO_MAIN${webContentsId}`;       // 渲染 -> 主进程（发送请求）
-const IPC_DOWN_CHANNEL = `RM_IPCFROM_MAIN${webContentsId}`;   // 主进程 -> 渲染（接收响应）
-const IPC_DOWN_MAIN2 = `RM_IPCFROM_MAIN2`;                    // 兜底通道
-const IPC_FROM_RENDERER = `RM_IPCFROM_RENDERER${webContentsId}` //  invokeNative的时候用
-
-console.log(`[Grab-RedBag] webContentsId=${webContentsId}, UP=${IPC_UP_CHANNEL}, DOWN=${IPC_DOWN_CHANNEL}`);
-
-// 将 webContentsId 暴露给渲染进程，用于主窗口判断（兼容不同平台）
-contextBridge.exposeInMainWorld("grab_redbag_webContentsId", webContentsId);
+function withTimeout(promise, operation) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            clearTimeout(timer);
+            reject(new Error(`[Grab-RedBag] ${operation} timed out`));
+        }, IPC_TIMEOUT);
+        promise.then(value => {
+            clearTimeout(timer);
+            resolve(value);
+        }, error => {
+            clearTimeout(timer);
+            reject(error);
+        });
+    });
+}
 
 // 在window对象下导出只读对象
 contextBridge.exposeInMainWorld("grab_redbag", {
@@ -39,117 +59,99 @@ contextBridge.exposeInMainWorld("grab_redbag", {
     addTotalAmount:(amount)=>ipcRenderer.invoke("LiteLoader.grab_redbag.addTotalAmount",amount),
     //发送消息到所有聊天窗口
     sendMsgToChatWindows: (message, arg) => {
-        //console.log(message,arg)
         ipcRenderer.send("LiteLoader.grab_redbag.sendMsgToChatWindows", message, arg)
     },
 });
 
-
 /**
- * 【V2 版本】调用 QQ 底层 NTAPI 函数（新版 RM_IPC 格式）
- *
- * @param { String } eventName 函数事件名，例如 "ns-ntApi"。
- * @param { String } cmdName 函数名，例如 "nodeIKernelMsgService/grabRedBag"。
- * @param { Boolean } registered 函数是否为一个注册事件函数（本版本暂未使用）。
- * @param  { ...any } args 函数参数。
- * @returns { Promise<any> } 函数返回值。
+ * @param {String} eventName
+ * @param {String} cmdName
+ * @param {Boolean} registered
+ * @param {...any} args
+ * @returns {Promise<any>}
  */
-function invokeNative(eventName, cmdName, registered, ...args) {
-    console.log(`[Grab-RedBag invokeNative] 准备发送 IPC 消息:
-    - UP Channel: ${IPC_UP_CHANNEL}
-    - DOWN Channel: ${IPC_DOWN_CHANNEL}
-    - Event: ${eventName}
-    - Command: ${cmdName}
-    - Args:`, ...args);
-
+async function invokeNative(eventName, cmdName, registered, ...args) {
+    const bridge = await getNativeBridge();
     return new Promise((resolve, reject) => {
         const callbackId = crypto.randomUUID?.() || `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-
+        let timer;
+        const cleanup = () => {
+            clearTimeout(timer);
+            for (const channel of bridge.responseChannels) ipcRenderer.off(channel, callback);
+        };
         const callback = (_event, ...resultArgs) => {
-            // 新版回调结构：resultArgs[0] 包含 callbackId，resultArgs[1] 是结果
             if (resultArgs?.[0]?.callbackId === callbackId) {
-                console.log('[Grab-RedBag invokeNative] 收到回调:', resultArgs[1]);
-                try { ipcRenderer.off(IPC_DOWN_CHANNEL, callback); } catch {}
-                try { ipcRenderer.off(IPC_DOWN_MAIN2, callback); } catch {}
+                cleanup();
                 resolve(resultArgs[1]);
             }
         };
 
-        // 监听回调通道 + 兜底通道
-        try { ipcRenderer.on(IPC_DOWN_CHANNEL, callback); } catch {}
-        try { ipcRenderer.on(IPC_DOWN_MAIN2, callback); } catch {}
-
-        // 构建新版载荷
-        const requestMetadata = {
-            type: "request",
-            callbackId: callbackId,
-            eventName: eventName,
-            peerId: webContentsId
-        };
-
-        const commandPayload = {
-            cmdName: cmdName,
-            cmdType: "invoke",
-            payload: args
-        };
-
-        // 发送 IPC 消息
         try {
-            ipcRenderer.send(IPC_FROM_RENDERER, requestMetadata, commandPayload);
-            console.log('[Grab-RedBag invokeNative] IPC 消息已发送。');
+            for (const channel of bridge.responseChannels) ipcRenderer.on(channel, callback);
+            timer = setTimeout(() => {
+                cleanup();
+                reject(new Error(`[Grab-RedBag] ${cmdName} timed out`));
+            }, IPC_TIMEOUT);
+            ipcRenderer.send(bridge.requestChannel, {
+                type: "request",
+                callbackId,
+                eventName,
+                peerId: bridge.webContentsId
+            }, {
+                cmdName,
+                cmdType: "invoke",
+                payload: args
+            });
         } catch (error) {
-            console.error('[Grab-RedBag invokeNative] IPC 消息发送失败:', error);
-            try { ipcRenderer.off(IPC_DOWN_CHANNEL, callback); } catch {}
-            try { ipcRenderer.off(IPC_DOWN_MAIN2, callback); } catch {}
+            cleanup();
             reject(error);
         }
     });
 }
 
 /**
- * 为qq底层事件 `cmdName` 添加 `handler` 处理器。（新版 RM_IPC）
- *
- * @param { String } cmdName 事件名称。
- * @param { Function } handler 事件处理器。
- * @returns { Function } 新的处理器。
+ * @param {String} cmdName
+ * @param {Function} handler
+ * @returns {Function}
  */
 function subscribeEvent(cmdName, handler) {
-    console.log(`[Grab-RedBag] subscribeEvent: cmdName=${cmdName}, DOWN=${IPC_DOWN_CHANNEL}`);
-    
-    const listener = (_event, ...args) => {
-        // // ===== 调试：打印收到的所有事件 =====
-        // console.log("[Grab-RedBag] ===== 收到IPC事件 =====");
-        // console.log("[Grab-RedBag] args长度:", args.length);
-        // for (let i = 0; i < args.length; i++) {
-        //     console.log(`[Grab-RedBag] args[${i}]:`, JSON.stringify(args[i], null, 2));
-        // }
-        // console.log("[Grab-RedBag] ===== 事件打印结束 =====");
-
-        // 尝试新版格式: args[1].cmdName
-        if (args?.[1]?.cmdName === cmdName) {
-            handler(args[1].payload);
-            return;
-        }
-        // 尝试旧版格式: args[3][1].cmdName
-        if (args?.[3]?.[1]?.cmdName === cmdName) {
-            handler(args[3][1].payload);
-            return;
+    const subscription = {channels: []};
+    const reportError = error => console.error("[Grab-RedBag] event handler failed:", cmdName, error);
+    const dispatch = payload => {
+        try {
+            Promise.resolve(handler(payload)).catch(reportError);
+        } catch (error) {
+            reportError(error);
         }
     };
-    
-    // 监听主通道 + 兜底通道
-    try { ipcRenderer.on(IPC_DOWN_CHANNEL, listener); } catch {}
-    try { ipcRenderer.on(IPC_DOWN_MAIN2, listener); } catch {}
+    const listener = (_event, ...args) => {
+        if (args?.[1]?.cmdName === cmdName) {
+            dispatch(args[1].payload);
+            return;
+        }
+        if (args?.[3]?.[1]?.cmdName === cmdName) {
+            dispatch(args[3][1].payload);
+        }
+    };
+    subscriptions.set(listener, subscription);
+    getNativeBridge().then(bridge => {
+        // A subscription may be cancelled while the asynchronous ID lookup is still pending.
+        if (!subscriptions.has(listener)) return;
+        subscription.channels = bridge.responseChannels;
+        for (const channel of subscription.channels) ipcRenderer.on(channel, listener);
+    }).catch(error => {
+        unsubscribeEvent(listener);
+        console.error("[Grab-RedBag] subscribeEvent failed:", error);
+    });
     return listener;
 }
 
 /**
- * 移除qq底层事件的 `handler` 处理器。（新版 RM_IPC）
- *
- * @param { Function } handler 事件处理器。
+ * @param {Function} handler
  */
 function unsubscribeEvent(handler) {
-    try { ipcRenderer.off(IPC_DOWN_CHANNEL, handler); } catch {}
-    try { ipcRenderer.off(IPC_DOWN_MAIN2, handler); } catch {}
+    const subscription = subscriptions.get(handler);
+    if (!subscription) return;
+    subscriptions.delete(handler);
+    for (const channel of subscription.channels) ipcRenderer.off(channel, handler);
 }
-

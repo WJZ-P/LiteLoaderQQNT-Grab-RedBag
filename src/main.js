@@ -17,16 +17,6 @@ const chatWindows = []//收集聊天窗口
 module.exports.onBrowserWindowCreated = window => {
     // window 为 Electron 的 BrowserWindow 实例
 
-    //监听preload发来的请求webContentsID
-    window.webContents.on('ipc-message-sync', (event, channel) => {
-        if (channel == '___!boot') {
-            event.returnValue = {
-                enabled: true,
-                webContentsId: window.webContents.id.toString(),
-            };
-        }
-    });
-
     window.webContents.on("did-stop-loading", async () => {
         // 通过 URL 判断是否为 QQ 主聊天窗口（兼容不同平台窗口 ID 不同的问题）
         const url = window.webContents.getURL();
@@ -82,6 +72,7 @@ function sendMsgToChatWindows(message, args) {
 function onLoad() {
     pluginLog("启动！")
 
+    ipcMain.handle("LiteLoader.grab_redbag.getWebContentsId", event => event.sender.id.toString())
     ipcMain.handle("LiteLoader.grab_redbag.getMenuHTML", () => fs.readFileSync(path.join(config.pluginPath, 'src/pluginMenu.html'), 'utf-8'))
     ipcMain.handle("LiteLoader.grab_redbag.getConfig", () => Config.getConfig())
     ipcMain.handle("LiteLoader.grab_redbag.setConfig", async (event, newConfig) => Config.setConfig(newConfig))//更新配置，并且返回新的配置
