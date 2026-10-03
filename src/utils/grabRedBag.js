@@ -354,7 +354,7 @@ export async function grabRedBag(payload) {
         msgSeq,
         index
     })
-    const result = await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/grabRedBag", window.grab_redbag_webContentsId, {
+    const result = await pluginAPI.invokeNative('ntApi', "nodeIKernelMsgService/grabRedBag", false, {
         "grabRedBagReq": {
             "recvUin": chatType === 1 ? recvUin : peerUid,//私聊的话是自己Q号，群聊就是peerUid
             "recvType": chatType,
