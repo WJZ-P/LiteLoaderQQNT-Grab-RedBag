@@ -37,11 +37,31 @@ module.exports.onBrowserWindowCreated = window => {
 
             if (config.isActiveAllGroups)//如果激活所有群，就拦截取消激活的事件，使得激活的聊天不会被取消
             {
-                window.webContents._events["-ipc-message"] = ipcModifyer(window.webContents._events["-ipc-message"])
-                pluginLog("成功修改deleteActiveChatByUid事件")
+                patchDeleteActiveChat(window)
             }
         }
     })
+}
+
+/**
+ * 只包装 "-ipc-message" 槽位里的原生监听器（数组槽位取 [0]），
+ * 不要整体替换槽位：整体替换会把数组变成 Proxy 对象，原生派发直接失效（界面卡死）。
+ * 与 lite_tools 的 proxyIpcMessage 保持一致的写法。
+ * @param window Electron 的 BrowserWindow 实例
+ */
+function patchDeleteActiveChat(window) {
+    const slot = window.webContents._events["-ipc-message"];
+    if (!slot) {
+        pluginLog("未找到-ipc-message监听器，跳过deleteActiveChatByUid事件修改")
+        return;
+    }
+    const proxy = ipcModifyer(Array.isArray(slot) ? slot[0] : slot);
+    if (Array.isArray(slot)) {
+        slot[0] = proxy;
+    } else {
+        window.webContents._events["-ipc-message"] = proxy;
+    }
+    pluginLog("成功修改deleteActiveChatByUid事件")
 }
 
 /**
